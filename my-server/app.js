@@ -30,14 +30,11 @@ app.get('/customers', async (req, res) => {
 
 app.post('/commission', async (req, res) => {
     const connection = await db.getConnection();
-    console.log(req.body)
-
     try {
         await connection.beginTransaction();
 
         const { customerInfo, orderInfo, paymentInfo, reportInfo, samples, testItems } = req.body;
-
-        console.log(customerInfo)
+        console.log(testItems);
         // 插入客户信息
         const [customer] = await connection.execute(`
             INSERT INTO customers (customer_name, customer_address, contact_name, contact_phone_num, contact_email) 
@@ -59,7 +56,25 @@ app.post('/commission', async (req, res) => {
         `, [customerId, orderInfo.service_type, orderInfo.sample_shipping_address, paymentId]);
         const orderId = order.insertId;
 
-        // 处理测试项目和样品
+        // // 处理测试项目和样品
+        // for (let item of testItems) {
+        //     const [testItem] = await connection.execute(`
+        //         INSERT INTO test_items (order_id, original_no, test_item, test_method, size, quantity, note)
+        //         VALUES (?, ?, ?, ?, ?, ?, ?)
+        //     `, [orderId, item.original_no, item.test_item, item.test_method, item.size, item.quantity, item.note]);
+        //     const testItemId = testItem.insertId;
+
+        //     // 对应每个测试项插入样品
+        //     const correspondingSample = samples.find(sample => sample.test_item_id === item.test_item_id);
+        //     if (correspondingSample) {
+        //         await connection.execute(`
+        //             INSERT INTO samples (test_item_id, sample_name, material, product_no, material_spec, sample_solution_type, sample_type)
+        //             VALUES (?, ?, ?, ?, ?, ?, ?)
+        //         `, [testItemId, correspondingSample.sample_name, correspondingSample.material, correspondingSample.product_no, correspondingSample.material_spec, correspondingSample.sample_solution_type, correspondingSample.sample_type]);
+        //     }
+        // }
+
+
         for (let item of testItems) {
             const [testItem] = await connection.execute(`
                 INSERT INTO test_items (order_id, original_no, test_item, test_method, size, quantity, note)
@@ -67,14 +82,11 @@ app.post('/commission', async (req, res) => {
             `, [orderId, item.original_no, item.test_item, item.test_method, item.size, item.quantity, item.note]);
             const testItemId = testItem.insertId;
 
-            // 对应每个测试项插入样品
-            const correspondingSample = samples.find(sample => sample.test_item_id === item.test_item_id);
-            if (correspondingSample) {
-                await connection.execute(`
-                    INSERT INTO samples (test_item_id, sample_name, material, product_no, material_spec, sample_solution_type, sample_type)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                `, [testItemId, correspondingSample.sample_name, correspondingSample.material, correspondingSample.product_no, correspondingSample.material_spec, correspondingSample.sample_solution_type, correspondingSample.sample_type]);
-            }
+            // 插入样品信息
+            await connection.execute(`
+                INSERT INTO samples (test_item_id, sample_name, material, product_no, material_spec, sample_solution_type, sample_type)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            `, [testItemId, samples.sample_name, samples.material, samples.product_no, samples.material_spec, samples.sample_solution_type, samples.sample_type]);
         }
 
         // 插入报告信息

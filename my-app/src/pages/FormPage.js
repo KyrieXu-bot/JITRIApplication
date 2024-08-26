@@ -86,7 +86,7 @@ function FormPage() {
     // 添加新的检测项目空行
     setFormData(prev => ({
       ...prev,
-      testItems: [...prev.testItems, { sampleNo: '', testItem: '', testMethod: '', size: '', quantity: '', note: '' }]
+      testItems: [...prev.testItems, { original_no: '', test_item: '', test_method: '', size: '', quantity: '', note: '' }]
     }));
   };
 
@@ -315,21 +315,21 @@ function FormPage() {
               <input
                 type="text"
                 value={item.originalNo}
-                onChange={(e) => handleTestItemChange(index, 'originalNo', e.target.value)}
+                onChange={(e) => handleTestItemChange(index, 'original_no', e.target.value)}
               />
             </label>
             <label>检测项目
               <input
                 type="text"
                 value={item.testItem}
-                onChange={(e) => handleTestItemChange(index, 'testItem', e.target.value)}
+                onChange={(e) => handleTestItemChange(index, 'test_item', e.target.value)}
               />
             </label>
             <label>检测方法
               <input
                 type="text"
                 value={item.testMethod}
-                onChange={(e) => handleTestItemChange(index, 'testMethod', e.target.value)}
+                onChange={(e) => handleTestItemChange(index, 'test_method', e.target.value)}
               />
             </label>
             <label>尺寸
