@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { createCommission} from '../api/api';
+import '../css/Form.css'
 
 function FormPage() {
   // 初始化表单数据
@@ -422,7 +423,7 @@ function FormPage() {
           )}
         </fieldset>
       )}
-        <button type="submit">提交表单</button>
+        <button type="submit" class="submit">提交表单</button>
       </form>
     </div>
   );

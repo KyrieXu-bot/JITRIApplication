@@ -1,0 +1,112 @@
+/* 全局样式 */
+body {
+    font-family: Arial, sans-serif;
+    background-color: white;
+    color: #333;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+}
+
+div {
+    padding: 15px;
+}
+
+/* 标题样式 */
+h1 {
+    color: #0056b3;
+    text-align: center;
+}
+
+h3 {
+    border-bottom: 2px solid #0056b3;
+    color: #0056b3;
+    padding-bottom: 5px;
+}
+
+/* 表单样式 */
+form {
+    background-color: #f8f9fa;
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+fieldset {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+legend {
+    color: #0056b3;
+    font-weight: bold;
+    padding: 0 5px;
+}
+
+label {
+    display: inline-block;
+    margin-bottom: 10px;
+    padding: 10px;
+    width: 48%; /* 使得两个输入框可以在同一行显示 */
+}
+
+input[type="text"],
+input[type="number"],
+input[type="email"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    margin-right: 10px;
+}
+
+button {
+    background-color: #0056b3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px 20px; /* 增加按钮的大小 */
+    font-size: 12px; /* 增加字体大小 */
+
+}
+
+.submit{
+    font-size: 18px; /* 增加字体大小 */
+    padding: 12px 24px; /* 增加按钮的大小 */
+
+    display: block; /* 使按钮居中 */
+    margin: 20px auto; /* 上下保持20px的间距，水平居中 */
+}
+button:hover {
+    background-color: #004494;
+}
+
+/* 特定部分的样式，如地址信息部分 */
+.address-info {
+    font-style: italic;
+    color: #555;
+}
+
+/* 特定布局调整，使检测项目输入框两个一行 */
+.test-item-group {
+    display: flex;
+    justify-content: space-between;
+}
+
+.test-item-group label {
+    flex: 1 1 45%; /* 调整以适应两个输入框一行 */
+    margin-right: 10px; /* 为标签添加右边距 */
+}
+
+.test-item-group label:last-child {
+    margin-right: 0;
+}

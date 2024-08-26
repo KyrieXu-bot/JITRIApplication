@@ -35,12 +35,6 @@ app.post('/commission', async (req, res) => {
 
         const { customerInfo, orderInfo, paymentInfo, reportInfo, samples, testItems } = req.body;
         console.log(testItems);
-        // 插入客户信息
-        const [customer] = await connection.execute(`
-            INSERT INTO customers (customer_name, customer_address, contact_name, contact_phone_num, contact_email) 
-            VALUES (?, ?, ?, ?, ?)
-        `, [customerInfo.customer_name, customerInfo.customer_address, customerInfo.contact_name, customerInfo.contact_phone_num, customerInfo.contact_email]);
-        const customerId = customer.insertId;
 
         // 插入支付信息
         const [payment] = await connection.execute(`
@@ -48,6 +42,13 @@ app.post('/commission', async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [paymentInfo.vat_type, paymentInfo.payer_name, paymentInfo.payer_address, paymentInfo.payer_phone_num, paymentInfo.bank_name, paymentInfo.tax_number, paymentInfo.bank_account, paymentInfo.payer_contact_name, paymentInfo.payer_contact_phone_num, paymentInfo.payer_contact_email]);
         const paymentId = payment.insertId;
+
+        // 插入客户信息
+        const [customer] = await connection.execute(`
+            INSERT INTO customers (customer_name, customer_address, contact_name, contact_phone_num, contact_email, payment_id) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        `, [customerInfo.customer_name, customerInfo.customer_address, customerInfo.contact_name, customerInfo.contact_phone_num, customerInfo.contact_email, paymentId]);
+        const customerId = customer.insertId;
 
         // 插入订单信息
         const [order] = await connection.execute(`
