@@ -1,27 +1,27 @@
-import React, { useState } from 'react';
-import { createCommission} from '../api/api';
+import React, { useState, useEffect } from 'react';
+import { createCommission } from '../api/api';
+import axios from 'axios';
 import '../css/Form.css'
 
 function FormPage() {
+
+  const [departments, setDepartments] = useState([]);
+  const [selectedDepartment, setSelectedDepartment] = useState('');
+
   // 初始化表单数据
   const [formData, setFormData] = useState({
     reportType: [],
     customerInfo: {
       customerName: '',
       customerAddress: '',
-      sampleName: '',
-      material: '',
-      productNo: '',
-      materialSpec: '',
-      contactName:'',
-      contactPhoneNum:'',
-      contactEmail:''
+      contactName: '',
+      contactPhoneNum: '',
+      contactEmail: ''
     },
-    sampleType: [],
     vatType: '',
-    serviceType:'',
-    sampleSolutionType:'',
-    paperReportShippingType:'',
+    serviceType: '',
+    sampleSolutionType: '',
+    paperReportShippingType: '',
     showPaperReport: false,
     payerInfo: {
       payerName: '',
@@ -30,24 +30,32 @@ function FormPage() {
       bankName: '',
       taxNumber: '',
       bankAccount: '',
-      payerContactName:'',
-      payerContactPhoneNum:'',
-      payerContactEmail:''
+      payerContactName: '',
+      payerContactPhoneNum: '',
+      payerContactEmail: ''
     },
+    sampleInfo:{
+      sampleName: '',
+      material: '',
+      productNo: '',
+      materialSpec: '',
+    },
+    sampleType: [],
+
     testItems: [],
   });
 
   // 映射客户(委托方)信息字段到更友好的显示名称
   const customerInfoLabels = {
-    customerName: '客户名称 Customer:',
-    customerAddress: '客户地址 Address:',
+    customerName: '客户(公司/单位)名称 Customer:',
+    customerAddress: '客户(公司/单位)地址 Address:',
     sampleName: '样品名称 Samples Name:',
     material: '材料 Material:',
     productNo: '货号或批号 Product or Lot No:',
     materialSpec: '材料规范 Material Spec:',
-    contactName:'委托联系人 Contact Name:',
-    contactPhoneNum:'Tel: ',
-    contactEmail:'E-mail:'
+    contactName: '委托联系人 Contact Name:',
+    contactPhoneNum: '电话: ',
+    contactEmail: '电子邮件 E-mail:'
   };
 
   // 映射付款方信息字段到更友好的显示名称
@@ -58,10 +66,18 @@ function FormPage() {
     bankName: '开户银行:',
     taxNumber: '税号:',
     bankAccount: '银行账号:',
-    payerContactName:'付款联系人 Payer:',
-    payerContactPhoneNum:'Tel:',
-    payerContactEmail:'E-mail:'
+    payerContactName: '付款联系人 Payer:',
+    payerContactPhoneNum: '电话:',
+    payerContactEmail: '电子邮件 E-mail:'
   };
+
+  const sampleInfoLabels = {
+    sampleName: '样品名称 Sample Name',
+    material: '材料 Material',
+    productNo: '货号 Product No',
+    materialSpec: '材料规范 Material Spec',
+
+  }
 
 
   const reportOptions = {
@@ -71,17 +87,34 @@ function FormPage() {
     '纸质版中文': 4,
     '纸质版英文': 5
   }
-  
+
   const typeMappings = {
-    sampleType:{
-      '板材':1,
-      '棒材':2,
-      '粉末':3,
-      '液体':4,
-      '其他':5
+    sampleType: {
+      '板材': 1,
+      '棒材': 2,
+      '粉末': 3,
+      '液体': 4,
+      '其他': 5
     },
   }
 
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/departments');
+        console.log(response.data)
+        setDepartments(response.data);
+      } catch (error) {
+        console.error('Failed to fetch departments:', error);
+      }
+    };
+
+    fetchDepartments();
+  }, []);
+
+  const handleDepartmentChange = (e) => {
+    setSelectedDepartment(e.target.value);
+  };
 
   const addTestItem = () => {
     // 添加新的检测项目空行
@@ -170,7 +203,7 @@ function FormPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const commissionData = {
-      customerInfo:{
+      customerInfo: {
         //customer表
         customer_name: formData.customerInfo.customerName,
         customer_address: formData.customerInfo.customerAddress,
@@ -178,16 +211,16 @@ function FormPage() {
         contact_phone_num: formData.customerInfo.contactPhoneNum,
         contact_email: formData.customerInfo.contactEmail,
       },
-      orderInfo:{
+      orderInfo: {
         //order表
         service_type: formData.serviceType,
         sample_shipping_address: formData.sampleShippingAddress,
       },
-      paymentInfo:{
+      paymentInfo: {
         //payment表
         vat_type: formData.vatType,
         payer_name: formData.payerInfo.payerName,
-        payer_address:formData.payerInfo.payerAddress,
+        payer_address: formData.payerInfo.payerAddress,
         payer_phone_num: formData.payerInfo.payerContactPhoneNum,
         bank_name: formData.payerInfo.bankName,
         tax_number: formData.payerInfo.taxNumber,
@@ -196,35 +229,36 @@ function FormPage() {
         payer_contact_phone_num: formData.payerInfo.payerPhoneNum,
         payer_contact_email: formData.payerInfo.payerContactEmail,
       },
-      reportInfo:{
+      reportInfo: {
         //reports表
-        type:formData.reportType,
+        type: formData.reportType,
         paper_report_shipping_type: formData.paperReportShippingType,
         report_additional_info: formData.reportAdditionalInfo,
       },
-      samples:{
+      sampleInfo: {
         //samples表
-        sample_name: formData.customerInfo.sampleName,
-        material: formData.customerInfo.material,
-        product_no: formData.customerInfo.productNo,
-        material_spec: formData.customerInfo.materialSpec,
+        sample_name: formData.sampleInfo.sampleName,
+        material: formData.sampleInfo.material,
+        product_no: formData.sampleInfo.productNo,
+        material_spec: formData.sampleInfo.materialSpec,
         sample_solution_type: formData.sampleSolutionType,
         sample_type: formData.sampleType,
       },
+      department_id: selectedDepartment,
       //testItems表
-      testItems:formData.testItems
+      testItems: formData.testItems
     };
-    console.log("看看往后面传啥：",commissionData)
+    console.log("看看往后面传啥：", commissionData)
 
 
     //新建检测
     createCommission(commissionData)
-    .then(response => {
-      console.log('Creating commission Success:', response.data);
-    })
-    .catch(error => {
-      console.error('Creating commission Error:', error);
-    });
+      .then(response => {
+        console.log('Creating commission Success:', response.data);
+      })
+      .catch(error => {
+        console.error('Creating commission Error:', error);
+      });
     alert('表单已提交，查看控制台获取数据');
   };
 
@@ -232,25 +266,35 @@ function FormPage() {
     <div>
       <h1>检测委托单(Application Form)</h1>
       <p>收样地址：江苏省苏州市相城区青龙岗路286号1楼<br></br>
-         联系人：龚菊红 17306221329<br></br>
-         邮箱：services@jitri-amrd.com
+        联系人：龚菊红 17306221329<br></br>
+        邮箱：services@jitri-amrd.com
       </p>
 
       <form onSubmit={handleSubmit}>
-      <fieldset>
-        <legend>报告形式</legend>
-        {Object.keys(reportOptions).map((option) => (
-          <label key={option}>
-            <input
-              type="checkbox"
-              value={option}
-              onChange={(e) => handleReportTypeChange(option, e.target.checked)}
-              checked={formData.reportType.includes(reportOptions[option])}
-            /> {option}
-          </label>
-        ))}
-      </fieldset>
-        
+        <fieldset>
+          <legend>报告形式</legend>
+          {Object.keys(reportOptions).map((option) => (
+            <label key={option}>
+              <input
+                type="checkbox"
+                value={option}
+                onChange={(e) => handleReportTypeChange(option, e.target.checked)}
+                checked={formData.reportType.includes(reportOptions[option])}
+              /> {option}
+            </label>
+          ))}
+        </fieldset>
+
+        <fieldset>
+          <legend>所属部门</legend>
+          <select value={selectedDepartment} onChange={handleDepartmentChange}>
+          {departments.map(dept => (
+            <option key={dept.department_id} value={dept.department_id}>
+              {dept.department_name}
+            </option>
+          ))}
+        </select>
+        </fieldset>
         {/* 客户信息输入部分 */}
         <h3>委托方信息</h3>
         {Object.keys(formData.customerInfo).map(key => (
@@ -280,20 +324,20 @@ function FormPage() {
             </label>
           ))}
         </fieldset>
-        
+
 
         {/* 客户信息输入部分 */}
         <h3>付款方</h3>
         <fieldset>
-        <legend>发票类型</legend>
-        <label>
-          <input type="radio" name="vatType" value="1" onChange={handleRadioChange} checked={formData.vatType === '1'} /> 增值税普通发票
-        </label>
-        <label>
-          <input type="radio" name="vatType" value="2" onChange={handleRadioChange} checked={formData.vatType === '2'} /> 增值税专用发票
-        </label>
-      </fieldset>
-      {Object.keys(formData.payerInfo).map(key => (
+          <legend>发票类型</legend>
+          <label>
+            <input type="radio" name="vatType" value="1" onChange={handleRadioChange} checked={formData.vatType === '1'} /> 增值税普通发票
+          </label>
+          <label>
+            <input type="radio" name="vatType" value="2" onChange={handleRadioChange} checked={formData.vatType === '2'} /> 增值税专用发票
+          </label>
+        </fieldset>
+        {Object.keys(formData.payerInfo).map(key => (
           <label key={key}>
             {payerInfoLabels[key]}
             <input
@@ -305,13 +349,43 @@ function FormPage() {
             <br></br>
           </label>
         ))}
+
+        {/* 样品信息输入部分 */}
+        <h3>样品信息</h3>
+        <fieldset>
+          <legend>样品类型</legend>
+          {/* 复选框列表 */}
+          {Object.keys(typeMappings.sampleType).map((type) => (
+            <label key={type}>
+              <input
+                type="checkbox"
+                name="sampleType"
+                value={type}
+                onChange={(e) => handleCheckboxChange('sampleType', type, e.target.checked)}
+              /> {type}
+            </label>
+          ))}
+        </fieldset>
+        {Object.keys(formData.sampleInfo).map(key => (
+          <label key={key}>
+            {sampleInfoLabels[key]}
+            <input
+              type="text"
+              name={key}
+              value={formData.sampleInfo[key]}
+              onChange={(e) => handleNestedChange('sampleInfo', key, e.target.value)}
+            />
+            <br></br>
+          </label>
+        ))}
+
         <h3>检测项目</h3>
         <button type="button" onClick={addTestItem}>添加项目</button>
         {formData.testItems.map((item, index) => (
           <div key={index}>
-            <label>序号 No.
+            <h3>序号 No.
               <span>{index + 1}</span>
-            </label>
+            </h3>
             <label>样品原号
               <input
                 type="text"
@@ -364,10 +438,10 @@ function FormPage() {
             <input type="radio" name="serviceType" value="1" onChange={handleRadioChange} checked={formData.serviceType === '1'} /> 常规(正常排单周期)
           </label>
           <label>
-            <input type="radio" name="serviceType" value="2" onChange={handleRadioChange} checked={formData.serviceType === '2'} /> 加急
+            <input type="radio" name="serviceType" value="2" onChange={handleRadioChange} checked={formData.serviceType === '2'} /> 加急（*1.5）
           </label>
           <label>
-            <input type="radio" name="serviceType" value="3" onChange={handleRadioChange} checked={formData.serviceType === '3'} /> 特急
+            <input type="radio" name="serviceType" value="3" onChange={handleRadioChange} checked={formData.serviceType === '3'} /> 特急（*2）
           </label>
         </fieldset>
 
@@ -395,34 +469,35 @@ function FormPage() {
           )}
         </fieldset>
 
-        
- 
+
+
 
         {formData.showPaperReport && (
-        <fieldset>
-          <legend>纸质版报告</legend>
-          {/* 例如邮寄选项 */}
-          <label>
-            <input type="radio" name="paperReportShippingType" value="1" onChange={handleRadioChange} /> 邮寄到委托方
-          </label>
-          <label>
-            <input type="radio" name="paperReportShippingType" value="2" onChange={handleRadioChange} /> 邮寄到付款方
-          </label>
-          <label>
-            <input type="radio" name="paperReportShippingType" value="3" onChange={handleRadioChange} /> 其他(地址/收件人/电话)
-          </label>
-          {formData.paperReportShippingType === '3' && (
+          <fieldset>
+            <legend>纸质版报告</legend>
+            {/* 例如邮寄选项 */}
             <label>
-              <input
-                type="text"
-                name="reportAdditionalInfo"
-                value={formData.reportAdditionalInfo}
-                onChange={handleInputChange}
-              />
+              <input type="radio" name="paperReportShippingType" value="1" onChange={handleRadioChange} /> 邮寄到委托方
             </label>
-          )}
-        </fieldset>
-      )}
+            <label>
+              <input type="radio" name="paperReportShippingType" value="2" onChange={handleRadioChange} /> 邮寄到付款方
+            </label>
+            <label>
+              <input type="radio" name="paperReportShippingType" value="3" onChange={handleRadioChange} /> 其他(地址/收件人/电话)
+            </label>
+            {formData.paperReportShippingType === '3' && (
+              <label>
+                请输入地址、收件人和电话:
+                <input
+                  type="text"
+                  name="reportAdditionalInfo"
+                  value={formData.reportAdditionalInfo}
+                  onChange={handleInputChange}
+                />
+              </label>
+            )}
+          </fieldset>
+        )}
         <button type="submit" class="submit">提交表单</button>
       </form>
     </div>

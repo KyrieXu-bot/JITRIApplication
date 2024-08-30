@@ -79,6 +79,22 @@ button {
 
 }
 
+label {
+    margin-right: 10px;
+    font-weight: bold;
+    color: #333; /* Dark grey color for text */
+}
+
+select {
+    flex-grow: 1;
+    padding: 8px;
+    border-radius: 5px;
+    width: 43%;
+
+    border: 1px solid #ccc; /* Light grey border */
+    background-color: white;
+}
+
 .submit{
     font-size: 18px; /* 增加字体大小 */
     padding: 12px 24px; /* 增加按钮的大小 */

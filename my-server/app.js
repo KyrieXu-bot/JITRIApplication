@@ -28,13 +28,33 @@ app.get('/customers', async (req, res) => {
     }
 });
 
+
+app.get('/departments', async (req, res) => {
+    try {
+        const connection = await db.pool.getConnection();
+
+        const [rows] = await connection.execute('SELECT * FROM departments');
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.post('/commission', async (req, res) => {
-    const connection = await db.getConnection();
+    const connection = await db.pool.getConnection();
     try {
         await connection.beginTransaction();
 
-        const { customerInfo, orderInfo, paymentInfo, reportInfo, samples, testItems } = req.body;
-        console.log(testItems);
+        const { customerInfo, orderInfo, paymentInfo, reportInfo, sampleInfo, testItems, department_id} = req.body;
+
+        // 插入客户信息
+        const [customer] = await connection.execute(`
+            INSERT INTO customers (customer_name, customer_address, contact_name, contact_phone_num, contact_email) 
+            VALUES (?, ?, ?, ?, ?)
+        `, [customerInfo.customer_name, customerInfo.customer_address, customerInfo.contact_name, customerInfo.contact_phone_num, customerInfo.contact_email]);
+        const customerId = customer.insertId;
+        // Generate order code
+        const orderNum = await db.generateOrderNum();
 
         // 插入支付信息
         const [payment] = await connection.execute(`
@@ -43,61 +63,36 @@ app.post('/commission', async (req, res) => {
         `, [paymentInfo.vat_type, paymentInfo.payer_name, paymentInfo.payer_address, paymentInfo.payer_phone_num, paymentInfo.bank_name, paymentInfo.tax_number, paymentInfo.bank_account, paymentInfo.payer_contact_name, paymentInfo.payer_contact_phone_num, paymentInfo.payer_contact_email]);
         const paymentId = payment.insertId;
 
-        // 插入客户信息
-        const [customer] = await connection.execute(`
-            INSERT INTO customers (customer_name, customer_address, contact_name, contact_phone_num, contact_email, payment_id) 
-            VALUES (?, ?, ?, ?, ?, ?)
-        `, [customerInfo.customer_name, customerInfo.customer_address, customerInfo.contact_name, customerInfo.contact_phone_num, customerInfo.contact_email, paymentId]);
-        const customerId = customer.insertId;
-
         // 插入订单信息
         const [order] = await connection.execute(`
-            INSERT INTO orders (customer_id, create_time, service_type, sample_shipping_address, payment_id)
-            VALUES (?, NOW(), ?, ?, ?)
-        `, [customerId, orderInfo.service_type, orderInfo.sample_shipping_address, paymentId]);
+            INSERT INTO orders (customer_id, create_time, service_type, sample_shipping_address, payment_id, order_num, department_id)
+            VALUES (?, NOW(), ?, ?, ?, ?, ?)
+        `, [customerId, orderInfo.service_type, orderInfo.sample_shipping_address, paymentId, orderNum, department_id]);
         const orderId = order.insertId;
 
-        // // 处理测试项目和样品
-        // for (let item of testItems) {
-        //     const [testItem] = await connection.execute(`
-        //         INSERT INTO test_items (order_id, original_no, test_item, test_method, size, quantity, note)
-        //         VALUES (?, ?, ?, ?, ?, ?, ?)
-        //     `, [orderId, item.original_no, item.test_item, item.test_method, item.size, item.quantity, item.note]);
-        //     const testItemId = testItem.insertId;
-
-        //     // 对应每个测试项插入样品
-        //     const correspondingSample = samples.find(sample => sample.test_item_id === item.test_item_id);
-        //     if (correspondingSample) {
-        //         await connection.execute(`
-        //             INSERT INTO samples (test_item_id, sample_name, material, product_no, material_spec, sample_solution_type, sample_type)
-        //             VALUES (?, ?, ?, ?, ?, ?, ?)
-        //         `, [testItemId, correspondingSample.sample_name, correspondingSample.material, correspondingSample.product_no, correspondingSample.material_spec, correspondingSample.sample_solution_type, correspondingSample.sample_type]);
-        //     }
-        // }
+        // 插入样品信息，现在直接关联到订单
+        await connection.execute(`
+            INSERT INTO samples (order_num, sample_name, material, product_no, material_spec, sample_solution_type, sample_type)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `, [orderNum, sampleInfo.sample_name, sampleInfo.material, sampleInfo.product_no, sampleInfo.material_spec, sampleInfo.sample_solution_type, sampleInfo.sample_type]);
 
 
         for (let item of testItems) {
-            const [testItem] = await connection.execute(`
-                INSERT INTO test_items (order_id, original_no, test_item, test_method, size, quantity, note)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            `, [orderId, item.original_no, item.test_item, item.test_method, item.size, item.quantity, item.note]);
-            const testItemId = testItem.insertId;
-
-            // 插入样品信息
             await connection.execute(`
-                INSERT INTO samples (test_item_id, sample_name, material, product_no, material_spec, sample_solution_type, sample_type)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            `, [testItemId, samples.sample_name, samples.material, samples.product_no, samples.material_spec, samples.sample_solution_type, samples.sample_type]);
+                INSERT INTO test_items (order_num, original_no, test_item, test_method, size, quantity, note, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, '0')
+            `, [orderNum, item.original_no, item.test_item, item.test_method, item.size, item.quantity, item.note]);
+
         }
 
         // 插入报告信息
         await connection.execute(`
-            INSERT INTO reports (order_id, type, paper_report_shipping_type, report_additional_info)
+            INSERT INTO reports (order_num, type, paper_report_shipping_type, report_additional_info)
             VALUES (?, ?, ?, ?)
-        `, [orderId, reportInfo.type, reportInfo.paper_report_shipping_type, reportInfo.report_additional_info]);
+        `, [orderNum, reportInfo.type, reportInfo.paper_report_shipping_type, reportInfo.report_additional_info]);
 
         await connection.commit();
-        res.status(201).send({ message: 'Commission created successfully', commissionId: orderId });
+        res.status(201).send({ message: 'Commission created successfully', commissionId: orderId, orderNum: orderNum });
     } catch (error) {
         await connection.rollback();
         res.status(500).send({ message: 'Error creating commission', error: error.message });
