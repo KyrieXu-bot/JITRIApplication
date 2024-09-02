@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { createCommission } from '../api/api';
-import axios from 'axios';
 import '../css/Form.css'
 
 function FormPage() {
 
-  const [departments, setDepartments] = useState([]);
-  const [selectedDepartment, setSelectedDepartment] = useState('');
 
+  // 静态部门数据
+  const departments = [
+    { department_id: 1, department_name: '显微组织表征实验室' },
+    { department_id: 2, department_name: '物化性能测试实验室' },
+    { department_id: 3, department_name: '力学性能测试实验室' }
+  ];
+  
   // 初始化表单数据
   const [formData, setFormData] = useState({
     reportType: [],
@@ -98,29 +102,34 @@ function FormPage() {
     },
   }
 
-  useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        const response = await axios.get('http://localhost:3001/departments');
-        console.log(response.data)
-        setDepartments(response.data);
-      } catch (error) {
-        console.error('Failed to fetch departments:', error);
+
+  const handleDepartmentChange = (index, newDepartmentId) => {
+    const updatedTestItems = formData.testItems.map((item, idx) => {
+      if (idx === index) {
+        return { ...item, department_id: newDepartmentId };
       }
-    };
-
-    fetchDepartments();
-  }, []);
-
-  const handleDepartmentChange = (e) => {
-    setSelectedDepartment(e.target.value);
+      return item;
+    });
+    setFormData(prev => ({
+      ...prev,
+      testItems: updatedTestItems
+    }));
   };
 
   const addTestItem = () => {
     // 添加新的检测项目空行
     setFormData(prev => ({
       ...prev,
-      testItems: [...prev.testItems, { original_no: '', test_item: '', test_method: '', size: '', quantity: '', note: '' }]
+      testItems: 
+      [...prev.testItems, 
+        { original_no: '', 
+          test_item: '', 
+          test_method: '',
+          size: '',
+          quantity: '', 
+          note: '', 
+          department_id:'' 
+        }]
     }));
   };
 
@@ -244,7 +253,6 @@ function FormPage() {
         sample_solution_type: formData.sampleSolutionType,
         sample_type: formData.sampleType,
       },
-      department_id: selectedDepartment,
       //testItems表
       testItems: formData.testItems
     };
@@ -285,16 +293,7 @@ function FormPage() {
           ))}
         </fieldset>
 
-        <fieldset>
-          <legend>所属部门</legend>
-          <select value={selectedDepartment} onChange={handleDepartmentChange}>
-          {departments.map(dept => (
-            <option key={dept.department_id} value={dept.department_id}>
-              {dept.department_name}
-            </option>
-          ))}
-        </select>
-        </fieldset>
+        
         {/* 客户信息输入部分 */}
         <h3>委托方信息</h3>
         {Object.keys(formData.customerInfo).map(key => (
@@ -420,6 +419,15 @@ function FormPage() {
                 value={item.quantity}
                 onChange={(e) => handleTestItemChange(index, 'quantity', e.target.value)}
               />
+            </label>
+            <label>所属部门
+              <select value={item.department_id} onChange={e => handleDepartmentChange(index, e.target.value)}>
+                {departments.map(dept => (
+                  <option key={dept.department_id} value={dept.department_id}>
+                    {dept.department_name}
+                  </option>
+                ))}
+              </select>
             </label>
             <label>备注
               <input

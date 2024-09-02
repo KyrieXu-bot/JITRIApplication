@@ -29,17 +29,6 @@ app.get('/customers', async (req, res) => {
 });
 
 
-app.get('/departments', async (req, res) => {
-    try {
-        const connection = await db.pool.getConnection();
-
-        const [rows] = await connection.execute('SELECT * FROM departments');
-        res.json(rows);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
 app.post('/commission', async (req, res) => {
     const connection = await db.pool.getConnection();
     try {
@@ -65,9 +54,9 @@ app.post('/commission', async (req, res) => {
 
         // 插入订单信息
         const [order] = await connection.execute(`
-            INSERT INTO orders (customer_id, create_time, service_type, sample_shipping_address, payment_id, order_num, department_id)
-            VALUES (?, NOW(), ?, ?, ?, ?, ?)
-        `, [customerId, orderInfo.service_type, orderInfo.sample_shipping_address, paymentId, orderNum, department_id]);
+            INSERT INTO orders (customer_id, create_time, service_type, sample_shipping_address, payment_id, order_num)
+            VALUES (?, NOW(), ?, ?, ?, ?)
+        `, [customerId, orderInfo.service_type, orderInfo.sample_shipping_address, paymentId, orderNum]);
         const orderId = order.insertId;
 
         // 插入样品信息，现在直接关联到订单
@@ -76,12 +65,12 @@ app.post('/commission', async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?)
         `, [orderNum, sampleInfo.sample_name, sampleInfo.material, sampleInfo.product_no, sampleInfo.material_spec, sampleInfo.sample_solution_type, sampleInfo.sample_type]);
 
-
         for (let item of testItems) {
+            console.log(item.department_id)
             await connection.execute(`
-                INSERT INTO test_items (order_num, original_no, test_item, test_method, size, quantity, note, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, '0')
-            `, [orderNum, item.original_no, item.test_item, item.test_method, item.size, item.quantity, item.note]);
+                INSERT INTO test_items (order_num, original_no, test_item, test_method, size, quantity, note, status, department_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, '0', ?)
+            `, [orderNum, item.original_no, item.test_item, item.test_method, item.size, item.quantity, item.note, item.department_id]);
 
         }
 
