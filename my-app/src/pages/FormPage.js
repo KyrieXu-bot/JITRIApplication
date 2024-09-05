@@ -11,7 +11,7 @@ function FormPage() {
     { department_id: 2, department_name: '物化性能测试实验室' },
     { department_id: 3, department_name: '力学性能测试实验室' }
   ];
-  
+
   // 初始化表单数据
   const [formData, setFormData] = useState({
     reportType: [],
@@ -38,7 +38,7 @@ function FormPage() {
       payerContactPhoneNum: '',
       payerContactEmail: ''
     },
-    sampleInfo:{
+    sampleInfo: {
       sampleName: '',
       material: '',
       productNo: '',
@@ -103,7 +103,10 @@ function FormPage() {
   }
 
 
+
+
   const handleDepartmentChange = (index, newDepartmentId) => {
+    console.log(newDepartmentId)
     const updatedTestItems = formData.testItems.map((item, idx) => {
       if (idx === index) {
         return { ...item, department_id: newDepartmentId };
@@ -120,15 +123,16 @@ function FormPage() {
     // 添加新的检测项目空行
     setFormData(prev => ({
       ...prev,
-      testItems: 
-      [...prev.testItems, 
-        { original_no: '', 
-          test_item: '', 
+      testItems:
+        [...prev.testItems,
+        {
+          original_no: '',
+          test_item: '',
           test_method: '',
           size: '',
-          quantity: '', 
-          note: '', 
-          department_id:'' 
+          quantity: '',
+          note: '',
+          department_id: ''
         }]
     }));
   };
@@ -270,6 +274,9 @@ function FormPage() {
     alert('表单已提交，查看控制台获取数据');
   };
 
+
+
+
   return (
     <div>
       <h1>检测委托单(Application Form)</h1>
@@ -293,7 +300,7 @@ function FormPage() {
           ))}
         </fieldset>
 
-        
+
         {/* 客户信息输入部分 */}
         <h3>委托方信息</h3>
         {Object.keys(formData.customerInfo).map(key => (
@@ -421,7 +428,18 @@ function FormPage() {
               />
             </label>
             <label>所属部门
-              <select value={item.department_id} onChange={e => handleDepartmentChange(index, e.target.value)}>
+              {/* <select value={item.department_id} onChange={e => handleDepartmentChange(index, e.target.value)}>
+                {departments.map(dept => (
+                  <option key={dept.department_id} value={dept.department_id}>
+                    {dept.department_name}
+                  </option>
+                ))}
+              </select> */}
+              <select
+                value={item.department_id || ""}
+                onChange={e => handleDepartmentChange(index, e.target.value)}
+              >
+                <option value="" disabled>---请选择---</option>
                 {departments.map(dept => (
                   <option key={dept.department_id} value={dept.department_id}>
                     {dept.department_name}
