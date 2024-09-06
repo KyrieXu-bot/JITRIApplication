@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createCommission } from '../api/api';
+import { createCommission, getPaymentInfoByPhoneNumber} from '../api/api';
 import '../css/Form.css'
 
 function FormPage() {
@@ -102,7 +102,39 @@ function FormPage() {
     },
   }
 
+  //预填付款方信息
+  const handlePrefillPaymentInfo = () => {
+    const phoneNumber = formData.customerInfo.contactPhoneNum; // 假设你的表单数据中已有phoneNumber字段
+    if (!phoneNumber) {
+      alert('请先填写手机号！');
+      return;
+    }
+  
+    getPaymentInfoByPhoneNumber(phoneNumber)
+    .then(response => {
+      console.log(response.data)
+      setFormData(prevState => ({
+        ...prevState,
+        payerInfo: {
+          payerName: response.data.payer_name,
+          payerAddress: response.data.payer_address,
+          payerPhoneNum: response.data.payer_phone_num,
+          bankName: response.data.bank_name,
+          taxNumber: response.data.tax_number,
+          bankAccount: response.data.bank_account,
+          payerContactName: response.data.payer_contact_name,
+          payerContactPhoneNum: response.data.payer_contact_phone_num,
+          payerContactEmail: response.data.payer_contact_email
+        }
+      }));
+      alert('信息预填成功！');
 
+    })
+    .catch(error => {
+      console.error('Error fetching payment info:', error);
+      alert('未查询到对应的付款方信息！');
+    });
+  };
 
 
   const handleDepartmentChange = (index, newDepartmentId) => {
@@ -303,6 +335,8 @@ function FormPage() {
 
         {/* 客户信息输入部分 */}
         <h3>委托方信息</h3>
+        <button type="button" onClick={handlePrefillPaymentInfo}>预填付款方信息</button>
+        <br></br>
         {Object.keys(formData.customerInfo).map(key => (
           <label key={key}>
             {customerInfoLabels[key]}

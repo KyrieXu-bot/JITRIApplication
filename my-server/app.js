@@ -89,3 +89,43 @@ app.post('/commission', async (req, res) => {
         connection.release();
     }
 });
+
+
+// 在app.js中添加新的路由
+app.get('/prefill-payment-info', async (req, res) => {
+    const phoneNumber = req.query.phoneNumber;
+
+    if (!phoneNumber) {
+        return res.status(400).json({ error: '手机号不能为空' });
+    }
+
+    try {
+        const connection = await db.pool.getConnection();
+        try {
+            // 查询 customer_id
+            const [customers] = await connection.query('SELECT customer_id FROM customers WHERE contact_phone_num = ?', [phoneNumber]);
+            if (customers.length === 0) {
+                return res.status(404).json({ error: '未查询到对应的客户信息' });
+            }
+            const customerId = customers[0].customer_id;
+
+            // 查询 payment_id
+            const [payments] = await connection.query('SELECT payment_id FROM orders WHERE customer_id = ?', [customerId]);            if (payments.length === 0) {
+                return res.status(404).json({ error: '未查询到对应的付款方信息' });
+            }
+
+            // 获取支付信息（假设存在一个 payment_details 表）
+            const paymentId = payments[0].payment_id;
+            const [paymentDetails] = await connection.query('SELECT * FROM payments WHERE payment_id = ?', [paymentId]);
+            if (paymentDetails.length === 0) {
+                return res.status(404).json({ error: '未查询到付款方详细信息' });
+            }
+
+            res.json(paymentDetails[0]);
+        } finally {
+            connection.release();
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
