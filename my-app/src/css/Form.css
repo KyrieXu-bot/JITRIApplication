@@ -126,3 +126,43 @@ button:hover {
 .test-item-group label:last-child {
     margin-right: 0;
 }
+
+
+
+
+
+
+
+/* 表格样式的检测项目 */
+.test-item-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.test-item-table th, .test-item-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+}
+
+.test-item-table select{
+    width: 180px;
+}
+.test-item-table th {
+    background-color: #f8f9fa;
+}
+
+.add-remove-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-button, .remove-button {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    color: #0056b3;
+    font-size: 20px;
+    margin: 0 5px;
+}

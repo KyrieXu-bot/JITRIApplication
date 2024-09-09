@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createCommission, getPaymentInfoByPhoneNumber} from '../api/api';
+import { createCommission, getPaymentInfoByPhoneNumber } from '../api/api';
 import '../css/Form.css'
 
 function FormPage() {
@@ -45,7 +45,6 @@ function FormPage() {
       materialSpec: '',
     },
     sampleType: [],
-
     testItems: [],
   });
 
@@ -109,31 +108,31 @@ function FormPage() {
       alert('请先填写手机号！');
       return;
     }
-  
-    getPaymentInfoByPhoneNumber(phoneNumber)
-    .then(response => {
-      console.log(response.data)
-      setFormData(prevState => ({
-        ...prevState,
-        payerInfo: {
-          payerName: response.data.payer_name,
-          payerAddress: response.data.payer_address,
-          payerPhoneNum: response.data.payer_phone_num,
-          bankName: response.data.bank_name,
-          taxNumber: response.data.tax_number,
-          bankAccount: response.data.bank_account,
-          payerContactName: response.data.payer_contact_name,
-          payerContactPhoneNum: response.data.payer_contact_phone_num,
-          payerContactEmail: response.data.payer_contact_email
-        }
-      }));
-      alert('信息预填成功！');
 
-    })
-    .catch(error => {
-      console.error('Error fetching payment info:', error);
-      alert('未查询到对应的付款方信息！');
-    });
+    getPaymentInfoByPhoneNumber(phoneNumber)
+      .then(response => {
+        console.log(response.data)
+        setFormData(prevState => ({
+          ...prevState,
+          payerInfo: {
+            payerName: response.data.payer_name,
+            payerAddress: response.data.payer_address,
+            payerPhoneNum: response.data.payer_phone_num,
+            bankName: response.data.bank_name,
+            taxNumber: response.data.tax_number,
+            bankAccount: response.data.bank_account,
+            payerContactName: response.data.payer_contact_name,
+            payerContactPhoneNum: response.data.payer_contact_phone_num,
+            payerContactEmail: response.data.payer_contact_email
+          }
+        }));
+        alert('信息预填成功！');
+
+      })
+      .catch(error => {
+        console.error('Error fetching payment info:', error);
+        alert('未查询到对应的付款方信息！');
+      });
   };
 
 
@@ -247,6 +246,98 @@ function FormPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (formData.reportType.length === 0) {
+      alert(`提交失败！报告形式为必填项，请重新选择`);
+      return; // 停止提交
+    }
+    // 委托方必填项
+    if (!formData.customerInfo.customerName) {
+      alert(`提交失败！客户(公司/单位)名称为必填项，请重新填写`);
+      return; // 停止提交
+    }
+    if (!formData.customerInfo.customerAddress) {
+      alert(`提交失败！客户地址为必填项，请重新填写`);
+      return; // 停止提交
+    }
+
+    if (!formData.customerInfo.contactName) {
+      alert(`提交失败！委托联系人为必填项，请重新填写`);
+      return; // 停止提交
+    }
+    if (!formData.customerInfo.contactPhoneNum) {
+      alert(`提交失败！客户(公司/单位)电话为必填项，请重新填写`);
+      return; // 停止提交
+    }
+    if (!formData.vatType) {
+      alert(`提交失败！发票类型为必填项，请重新填写`);
+      return; // 停止提交
+    }
+
+    //付款方必填项
+    if (!formData.payerInfo.payerName) {
+      alert(`提交失败！付款方${payerInfoLabels.payerName}为必填项，请重新填写`);
+      return; // 停止提交
+    }
+    if (!formData.payerInfo.payerAddress) {
+      alert(`提交失败！付款方${payerInfoLabels.payerAddress}为必填项，请重新填写`);
+      return; // 停止提交
+    }
+    if (!formData.payerInfo.payerPhoneNum) {
+      alert(`提交失败！付款方${payerInfoLabels.payerPhoneNum}为必填项，请重新填写`);
+      return; // 停止提交
+    }
+    if (!formData.payerInfo.bankName) {
+      alert(`提交失败！付款方${payerInfoLabels.bankName}为必填项，请重新填写`);
+      return; // 停止提交
+    }
+    if (!formData.payerInfo.taxNumber) {
+      alert(`提交失败！付款方${payerInfoLabels.taxNumber}为必填项，请重新填写`);
+      return; // 停止提交
+    }
+    if (!formData.payerInfo.bankAccount) {
+      alert(`提交失败！付款方${payerInfoLabels.bankAccount}为必填项，请重新填写`);
+      return; // 停止提交
+    }
+    if (!formData.payerInfo.payerContactName) {
+      alert(`提交失败！付款方${payerInfoLabels.payerContactName}为必填项，请重新填写`);
+      return; // 停止提交
+    }
+    if (!formData.payerInfo.payerPhoneNum) {
+      alert(`提交失败！付款方${payerInfoLabels.payerContactPhoneNum}为必填项，请重新填写`);
+      return; // 停止提交
+    }
+    if (!formData.payerInfo.payerContactEmail) {
+      alert(`提交失败！付款方${payerInfoLabels.payerContactEmail}为必填项，请重新填写`);
+      return; // 停止提交
+    }
+
+    if (!formData.sampleInfo.material) {
+      alert(`提交失败！材料为必填项，请重新填写`);
+      return; // 停止提交
+    }
+
+    for (let i = 0; i < formData.testItems.length; i++) {
+      const testItem = formData.testItems[i];
+      if (!testItem.test_item) {
+        alert(`提交失败！第${i + 1}个检测项目的测试项目为必填项，请重新填写`);
+        return; // 停止提交
+      }
+      if (!testItem.quantity) {
+        alert(`提交失败！第${i + 1}个检测项目的数量为必填项，请重新填写`);
+        return; // 停止提交
+      }
+    }
+
+    if (!formData.serviceType) {
+      alert(`提交失败！服务类型为必填项，请重新填写`);
+      return; // 停止提交
+    }
+
+    if (!formData.sampleSolutionType) {
+      alert(`提交失败！样品处置为必填项，请重新填写`);
+      return; // 停止提交
+    }
+
     const commissionData = {
       customerInfo: {
         //customer表
@@ -306,15 +397,37 @@ function FormPage() {
     alert('表单已提交，查看控制台获取数据');
   };
 
+  //需要加必填项(*)的模块
+  const requiredFields = {
+    customerInfo: [
+      'customerName',
+      'customerAddress',
+      'contactName',
+      'contactPhoneNum'
+    ], // 假设客户名称是必填的
+    payerInfo: [
+      'payerName',
+      'payerAddress',
+      'payerPhoneNum',
+      'bankName',
+      'taxNumber',
+      'bankAccount',
+      'payerContactName',
+      'payerContactPhoneNum',
+      'payerContactEmail'
+    ], // 付款方的必填信息
 
+    sampleInfo: ['material'],
 
+  };
 
   return (
     <div>
       <h1>检测委托单(Application Form)</h1>
       <p>收样地址：江苏省苏州市相城区青龙岗路286号1楼<br></br>
         联系人：龚菊红 17306221329<br></br>
-        邮箱：services@jitri-amrd.com
+        邮箱：services@jitri-amrd.com<br></br>
+        注：本表中带★号处为必填项目，测试预约安排以邮箱收到的委托单顺序为准，一份委托单只出一份报告。多份报告或英文报告收费。
       </p>
 
       <form onSubmit={handleSubmit}>
@@ -339,7 +452,7 @@ function FormPage() {
         <br></br>
         {Object.keys(formData.customerInfo).map(key => (
           <label key={key}>
-            {customerInfoLabels[key]}
+            {customerInfoLabels[key]} {requiredFields.customerInfo.includes(key) && <span style={{ color: 'red' }}>*</span>}
             <input
               type="text"
               name={key}
@@ -349,22 +462,6 @@ function FormPage() {
             <br></br>
           </label>
         ))}
-
-        <fieldset>
-          <legend>样品类型</legend>
-          {/* 复选框列表 */}
-          {Object.keys(typeMappings.sampleType).map((type) => (
-            <label key={type}>
-              <input
-                type="checkbox"
-                name="sampleType"
-                value={type}
-                onChange={(e) => handleCheckboxChange('sampleType', type, e.target.checked)}
-              /> {type}
-            </label>
-          ))}
-        </fieldset>
-
 
         {/* 客户信息输入部分 */}
         <h3>付款方</h3>
@@ -379,7 +476,7 @@ function FormPage() {
         </fieldset>
         {Object.keys(formData.payerInfo).map(key => (
           <label key={key}>
-            {payerInfoLabels[key]}
+            {payerInfoLabels[key]} {requiredFields.payerInfo.includes(key) && <span style={{ color: 'red' }}>*</span>}
             <input
               type="text"
               name={key}
@@ -408,7 +505,7 @@ function FormPage() {
         </fieldset>
         {Object.keys(formData.sampleInfo).map(key => (
           <label key={key}>
-            {sampleInfoLabels[key]}
+            {sampleInfoLabels[key]} {requiredFields.sampleInfo.includes(key) && <span style={{ color: 'red' }}>*</span>}
             <input
               type="text"
               name={key}
@@ -419,7 +516,7 @@ function FormPage() {
           </label>
         ))}
 
-        <h3>检测项目</h3>
+        {/* <h3>检测项目</h3>
         <button type="button" onClick={addTestItem}>添加项目</button>
         {formData.testItems.map((item, index) => (
           <div key={index}>
@@ -462,13 +559,7 @@ function FormPage() {
               />
             </label>
             <label>所属部门
-              {/* <select value={item.department_id} onChange={e => handleDepartmentChange(index, e.target.value)}>
-                {departments.map(dept => (
-                  <option key={dept.department_id} value={dept.department_id}>
-                    {dept.department_name}
-                  </option>
-                ))}
-              </select> */}
+
               <select
                 value={item.department_id || ""}
                 onChange={e => handleDepartmentChange(index, e.target.value)}
@@ -490,10 +581,60 @@ function FormPage() {
             </label>
             <button type="button" onClick={() => removeTestItem(index)}>删除</button>
           </div>
-        ))}
+        ))} */}
+
+
+
+        <h3>检测项目</h3>
+        <table className="test-item-table">
+          <thead>
+            <tr>
+              <th>序号 No.</th>
+              <th>样品原号</th>
+              <th>检测项目</th>
+              <th>检测方法</th>
+              <th>尺寸</th>
+              <th>数量</th>
+              <th>所属部门</th>
+              <th>备注</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {formData.testItems.map((item, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td><input type="text" value={item.originalNo} onChange={(e) => handleTestItemChange(index, 'original_no', e.target.value)} /></td>
+                <td><input type="text" value={item.testItem} onChange={(e) => handleTestItemChange(index, 'test_item', e.target.value)} /></td>
+                <td><input type="text" value={item.testMethod} onChange={(e) => handleTestItemChange(index, 'test_method', e.target.value)} /></td>
+                <td><input type="text" value={item.size} onChange={(e) => handleTestItemChange(index, 'size', e.target.value)} /></td>
+                <td><input type="number" value={item.quantity} onChange={(e) => handleTestItemChange(index, 'quantity', e.target.value)} /></td>
+                <td>
+                  <select value={item.department_id || ""} onChange={e => handleDepartmentChange(index, e.target.value)}>
+                    <option value="" disabled>---请选择---</option>
+                    {departments.map(dept => (
+                      <option key={dept.department_id} value={dept.department_id}>{dept.department_name}</option>
+                    ))}
+                  </select>
+                </td>
+                <td><input type="text" value={item.note} onChange={(e) => handleTestItemChange(index, 'note', e.target.value)} /></td>
+                <td className="add-remove-buttons">
+                  <button type="button" className="add-button" onClick={() => addTestItem(index)}>+</button>
+                  <button type="button" className="remove-button" onClick={() => removeTestItem(index)}>-</button>
+                </td>
+              </tr>
+            ))}
+            <tr>
+              <td colSpan="9">
+                <button type="button" onClick={addTestItem} style={{ width: '100%' }}>添加新项目</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
 
         <fieldset>
-          <legend>服务类型</legend>
+          <legend>服务类型&nbsp;<span style={{ color: 'red' }}>*</span></legend>
           <label>
             <input type="radio" name="serviceType" value="1" onChange={handleRadioChange} checked={formData.serviceType === '1'} /> 常规(正常排单周期)
           </label>
@@ -506,7 +647,7 @@ function FormPage() {
         </fieldset>
 
         <fieldset>
-          <legend>样品处置</legend>
+          <legend>样品处置&nbsp;<span style={{ color: 'red' }}>*</span></legend>
           <label>
             <input type="radio" name="sampleSolutionType" value="1" onChange={handleRadioChange} checked={formData.sampleSolutionType === '1'} /> 不退(样品留存90天，逾期销毁)
           </label>

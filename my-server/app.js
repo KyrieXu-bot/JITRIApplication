@@ -40,7 +40,11 @@ app.post('/commission', async (req, res) => {
         const [customer] = await connection.execute(`
             INSERT INTO customers (customer_name, customer_address, contact_name, contact_phone_num, contact_email) 
             VALUES (?, ?, ?, ?, ?)
-        `, [customerInfo.customer_name, customerInfo.customer_address, customerInfo.contact_name, customerInfo.contact_phone_num, customerInfo.contact_email]);
+        `, [customerInfo.customer_name || null,
+            customerInfo.customer_address || null,
+            customerInfo.contact_name || null,
+            customerInfo.contact_phone_num || null,
+            customerInfo.contact_email || null]);
         const customerId = customer.insertId;
         // Generate order code
         const orderNum = await db.generateOrderNum();
@@ -49,28 +53,48 @@ app.post('/commission', async (req, res) => {
         const [payment] = await connection.execute(`
             INSERT INTO payments (vat_type, payer_name, payer_address, payer_phone_num, bank_name, tax_number, bank_account, payer_contact_name, payer_contact_phone_num, payer_contact_email)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [paymentInfo.vat_type, paymentInfo.payer_name, paymentInfo.payer_address, paymentInfo.payer_phone_num, paymentInfo.bank_name, paymentInfo.tax_number, paymentInfo.bank_account, paymentInfo.payer_contact_name, paymentInfo.payer_contact_phone_num, paymentInfo.payer_contact_email]);
+        `, [paymentInfo.vat_type || null,
+            paymentInfo.payer_name || null,
+            paymentInfo.payer_address || null,
+            paymentInfo.payer_phone_num || null,
+            paymentInfo.bank_name || null,
+            paymentInfo.tax_number || null,
+            paymentInfo.bank_account || null,
+            paymentInfo.payer_contact_name || null,
+            paymentInfo.payer_contact_phone_num || null,
+            paymentInfo.payer_contact_email || null]);
         const paymentId = payment.insertId;
 
         // 插入订单信息
         const [order] = await connection.execute(`
             INSERT INTO orders (customer_id, create_time, service_type, sample_shipping_address, payment_id, order_num)
             VALUES (?, NOW(), ?, ?, ?, ?)
-        `, [customerId, orderInfo.service_type, orderInfo.sample_shipping_address, paymentId, orderNum]);
+        `, [customerId || null,
+            orderInfo.service_type || null,
+            orderInfo.sample_shipping_address || null,
+            paymentId || null, orderNum]);
         const orderId = order.insertId;
 
         // 插入样品信息，现在直接关联到订单
         await connection.execute(`
             INSERT INTO samples (order_num, sample_name, material, product_no, material_spec, sample_solution_type, sample_type)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        `, [orderNum, sampleInfo.sample_name, sampleInfo.material, sampleInfo.product_no, sampleInfo.material_spec, sampleInfo.sample_solution_type, sampleInfo.sample_type]);
+        `, [orderNum, sampleInfo.sample_name || null,
+            sampleInfo.material || null,
+            sampleInfo.product_no || null,
+            sampleInfo.material_spec || null,
+            sampleInfo.sample_solution_type || null,
+            sampleInfo.sample_type || null]);
 
         for (let item of testItems) {
             console.log(item.department_id)
             await connection.execute(`
                 INSERT INTO test_items (order_num, original_no, test_item, test_method, size, quantity, note, status, department_id)
                 VALUES (?, ?, ?, ?, ?, ?, ?, '0', ?)
-            `, [orderNum, item.original_no, item.test_item, item.test_method, item.size, item.quantity, item.note, item.department_id]);
+            `, [orderNum, item.original_no || null,
+                item.test_item || null,
+                item.test_method || null,
+                item.size || null, item.quantity || null, item.note || null, item.department_id || null]);
 
         }
 
@@ -78,7 +102,9 @@ app.post('/commission', async (req, res) => {
         await connection.execute(`
             INSERT INTO reports (order_num, type, paper_report_shipping_type, report_additional_info)
             VALUES (?, ?, ?, ?)
-        `, [orderNum, reportInfo.type, reportInfo.paper_report_shipping_type, reportInfo.report_additional_info]);
+        `, [orderNum, reportInfo.type || null, 
+            reportInfo.paper_report_shipping_type || null, 
+            reportInfo.report_additional_info || null]);
 
         await connection.commit();
         res.status(201).send({ message: 'Commission created successfully', commissionId: orderId, orderNum: orderNum });
