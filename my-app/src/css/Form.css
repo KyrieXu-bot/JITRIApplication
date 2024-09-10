@@ -166,3 +166,78 @@ button:hover {
     font-size: 20px;
     margin: 0 5px;
 }
+
+
+
+
+@media print {
+    body, html {
+        margin: 0;
+        padding: 0;
+        background-color: white;
+        font-family: 'Arial', sans-serif;
+    }
+
+    div, form {
+        margin: 0;
+        padding: 5px;
+    }
+
+    h1, h2, p {
+        font-size: 6pt;
+        margin-top: 2px;
+        margin-bottom: 2px;
+        font-weight: bold; /* 标题加粗 */
+    }
+
+    h3 {
+        font-size: 10px;
+        color: black;
+    }
+    label {
+        font-size: 9pt;
+        display: block;
+        margin-bottom: 2px; /* 减少标签之间的间距 */
+        padding: 0px;
+
+    }
+
+    input[type="text"], input[type="number"], input[type="email"], select {
+        width: 100%;
+        max-width: 180px; /* 控制最大宽度 */
+        height: 18px;
+        padding: 2px 5px;
+        margin: 0;
+        border: 1px solid #ccc; /* 给输入框加上边框 */
+        box-sizing: border-box;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid black;
+    }
+
+    th, td {
+        border: 1px solid black;
+        padding: 2px;
+        text-align: left;
+        font-size: 8pt;
+    }
+
+    button, .hide-on-print {
+        display: none;
+    }
+
+    fieldset {
+        border: 1px solid #aaa;
+        margin-bottom: 5px;
+        padding: 5px;
+        display: flex;
+        justify-content: space-around;
+    }
+    legend {
+        color: black;
+        font-size: 10px;
+    }
+}

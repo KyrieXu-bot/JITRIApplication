@@ -516,75 +516,7 @@ function FormPage() {
           </label>
         ))}
 
-        {/* <h3>检测项目</h3>
-        <button type="button" onClick={addTestItem}>添加项目</button>
-        {formData.testItems.map((item, index) => (
-          <div key={index}>
-            <h3>序号 No.
-              <span>{index + 1}</span>
-            </h3>
-            <label>样品原号
-              <input
-                type="text"
-                value={item.originalNo}
-                onChange={(e) => handleTestItemChange(index, 'original_no', e.target.value)}
-              />
-            </label>
-            <label>检测项目
-              <input
-                type="text"
-                value={item.testItem}
-                onChange={(e) => handleTestItemChange(index, 'test_item', e.target.value)}
-              />
-            </label>
-            <label>检测方法
-              <input
-                type="text"
-                value={item.testMethod}
-                onChange={(e) => handleTestItemChange(index, 'test_method', e.target.value)}
-              />
-            </label>
-            <label>尺寸
-              <input
-                type="text"
-                value={item.size}
-                onChange={(e) => handleTestItemChange(index, 'size', e.target.value)}
-              />
-            </label>
-            <label>数量
-              <input
-                type="number"
-                value={item.quantity}
-                onChange={(e) => handleTestItemChange(index, 'quantity', e.target.value)}
-              />
-            </label>
-            <label>所属部门
-
-              <select
-                value={item.department_id || ""}
-                onChange={e => handleDepartmentChange(index, e.target.value)}
-              >
-                <option value="" disabled>---请选择---</option>
-                {departments.map(dept => (
-                  <option key={dept.department_id} value={dept.department_id}>
-                    {dept.department_name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>备注
-              <input
-                type="text"
-                value={item.note}
-                onChange={(e) => handleTestItemChange(index, 'note', e.target.value)}
-              />
-            </label>
-            <button type="button" onClick={() => removeTestItem(index)}>删除</button>
-          </div>
-        ))} */}
-
-
-
+        
         <h3>检测项目</h3>
         <table className="test-item-table">
           <thead>
@@ -699,7 +631,9 @@ function FormPage() {
             )}
           </fieldset>
         )}
+        <button type="button" onClick={() => window.print()}>表单打印</button>
         <button type="submit" class="submit">提交表单</button>
+
       </form>
     </div>
   );
