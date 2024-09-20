@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { createCommission, getPaymentInfoByPhoneNumber } from '../api/api';
+import React, { useState, useEffect } from 'react';
+import { createCommission, getPaymentInfoByPhoneNumber, getSalesperson } from '../api/api';
+
 import '../css/Form.css'
 
 function FormPage() {
 
+  const [salespersons, setSalespersons] = useState([]);
 
   // 静态部门数据
   const departments = [
@@ -26,6 +28,8 @@ function FormPage() {
     serviceType: '',
     sampleSolutionType: '',
     paperReportShippingType: '',
+    totalPrice: '',
+    salesPerson: '',
     showPaperReport: false,
     payerInfo: {
       payerName: '',
@@ -50,15 +54,15 @@ function FormPage() {
 
   // 映射客户(委托方)信息字段到更友好的显示名称
   const customerInfoLabels = {
-    customerName: '客户(公司/单位)名称 Customer:',
-    customerAddress: '客户(公司/单位)地址 Address:',
+    customerName: '公司/单位名称:',
+    customerAddress: '公司/单位地址:',
     sampleName: '样品名称 Samples Name:',
     material: '材料 Material:',
     productNo: '货号或批号 Product or Lot No:',
     materialSpec: '材料规范 Material Spec:',
-    contactName: '委托联系人 Contact Name:',
+    contactName: '委托联系人:',
     contactPhoneNum: '电话: ',
-    contactEmail: '电子邮件 E-mail:'
+    contactEmail: 'E-mail:'
   };
 
   // 映射付款方信息字段到更友好的显示名称
@@ -100,6 +104,25 @@ function FormPage() {
       '其他': 5
     },
   }
+
+
+  useEffect(() => {
+    const fetchSalespersons = async () => {
+      try {
+        getSalesperson()
+          .then(response => {
+            setSalespersons(response.data);
+          })
+          .catch(error => {
+            console.error('拉取销售人员失败:', error);
+          });
+      } catch (error) {
+        console.error('Error fetching salespersons:', error);
+      }
+    };
+    fetchSalespersons();
+  }, []);
+
 
   //预填付款方信息
   const handlePrefillPaymentInfo = () => {
@@ -351,6 +374,7 @@ function FormPage() {
         //order表
         service_type: formData.serviceType,
         sample_shipping_address: formData.sampleShippingAddress,
+        total_price: formData.totalPrice
       },
       paymentInfo: {
         //payment表
@@ -379,6 +403,10 @@ function FormPage() {
         material_spec: formData.sampleInfo.materialSpec,
         sample_solution_type: formData.sampleSolutionType,
         sample_type: formData.sampleType,
+      },
+      assignmentInfo:{
+        //assignments表
+        account: formData.salesPerson,
       },
       //testItems表
       testItems: formData.testItems
@@ -450,18 +478,20 @@ function FormPage() {
         <h3>委托方信息</h3>
         <button type="button" onClick={handlePrefillPaymentInfo}>预填付款方信息</button>
         <br></br>
-        {Object.keys(formData.customerInfo).map(key => (
-          <label key={key}>
-            {customerInfoLabels[key]} {requiredFields.customerInfo.includes(key) && <span style={{ color: 'red' }}>*</span>}
-            <input
-              type="text"
-              name={key}
-              value={formData.customerInfo[key]}
-              onChange={(e) => handleNestedChange('customerInfo', key, e.target.value)}
-            />
-            <br></br>
-          </label>
-        ))}
+        <div class="block">
+          {Object.keys(formData.customerInfo).map(key => (
+            <label key={key}>
+              {customerInfoLabels[key]} {requiredFields.customerInfo.includes(key) && <span style={{ color: 'red' }}>*</span>}
+              <input
+                type="text"
+                name={key}
+                value={formData.customerInfo[key]}
+                onChange={(e) => handleNestedChange('customerInfo', key, e.target.value)}
+              />
+              <br></br>
+            </label>
+          ))}
+        </div>
 
         {/* 客户信息输入部分 */}
         <h3>付款方</h3>
@@ -474,18 +504,20 @@ function FormPage() {
             <input type="radio" name="vatType" value="2" onChange={handleRadioChange} checked={formData.vatType === '2'} /> 增值税专用发票
           </label>
         </fieldset>
-        {Object.keys(formData.payerInfo).map(key => (
-          <label key={key}>
-            {payerInfoLabels[key]} {requiredFields.payerInfo.includes(key) && <span style={{ color: 'red' }}>*</span>}
-            <input
-              type="text"
-              name={key}
-              value={formData.payerInfo[key]}
-              onChange={(e) => handleNestedChange('payerInfo', key, e.target.value)}
-            />
-            <br></br>
-          </label>
-        ))}
+        <div class="block">
+          {Object.keys(formData.payerInfo).map(key => (
+            <label key={key}>
+              {payerInfoLabels[key]} {requiredFields.payerInfo.includes(key) && <span style={{ color: 'red' }}>*</span>}
+              <input
+                type="text"
+                name={key}
+                value={formData.payerInfo[key]}
+                onChange={(e) => handleNestedChange('payerInfo', key, e.target.value)}
+              />
+              <br></br>
+            </label>
+          ))}
+        </div>
 
         {/* 样品信息输入部分 */}
         <h3>样品信息</h3>
@@ -503,25 +535,27 @@ function FormPage() {
             </label>
           ))}
         </fieldset>
-        {Object.keys(formData.sampleInfo).map(key => (
-          <label key={key}>
-            {sampleInfoLabels[key]} {requiredFields.sampleInfo.includes(key) && <span style={{ color: 'red' }}>*</span>}
-            <input
-              type="text"
-              name={key}
-              value={formData.sampleInfo[key]}
-              onChange={(e) => handleNestedChange('sampleInfo', key, e.target.value)}
-            />
-            <br></br>
-          </label>
-        ))}
+        <div class="block">
+          {Object.keys(formData.sampleInfo).map(key => (
+            <label key={key}>
+              {sampleInfoLabels[key]} {requiredFields.sampleInfo.includes(key) && <span style={{ color: 'red' }}>*</span>}
+              <input
+                type="text"
+                name={key}
+                value={formData.sampleInfo[key]}
+                onChange={(e) => handleNestedChange('sampleInfo', key, e.target.value)}
+              />
+              <br></br>
+            </label>
+          ))}
+        </div>
 
-        
+
         <h3>检测项目</h3>
         <table className="test-item-table">
           <thead>
             <tr>
-              <th>序号 No.</th>
+              <th className="num">序号 No.</th>
               <th>样品原号</th>
               <th>检测项目</th>
               <th>检测方法</th>
@@ -529,17 +563,17 @@ function FormPage() {
               <th>数量</th>
               <th>所属部门</th>
               <th>备注</th>
-              <th>操作</th>
+              <th id="operation">操作</th>
             </tr>
           </thead>
           <tbody>
             {formData.testItems.map((item, index) => (
               <tr key={index}>
-                <td>{index + 1}</td>
+                <td className="num">{index + 1}</td>
                 <td><input type="text" value={item.originalNo} onChange={(e) => handleTestItemChange(index, 'original_no', e.target.value)} /></td>
                 <td><input type="text" value={item.testItem} onChange={(e) => handleTestItemChange(index, 'test_item', e.target.value)} /></td>
                 <td><input type="text" value={item.testMethod} onChange={(e) => handleTestItemChange(index, 'test_method', e.target.value)} /></td>
-                <td><input type="text" value={item.size} onChange={(e) => handleTestItemChange(index, 'size', e.target.value)} /></td>
+                <td><input type="text" valuiie={item.size} onChange={(e) => handleTestItemChange(index, 'size', e.target.value)} /></td>
                 <td><input type="number" value={item.quantity} onChange={(e) => handleTestItemChange(index, 'quantity', e.target.value)} /></td>
                 <td>
                   <select value={item.department_id || ""} onChange={e => handleDepartmentChange(index, e.target.value)}>
@@ -602,7 +636,33 @@ function FormPage() {
           )}
         </fieldset>
 
-
+        <fieldset>
+          <legend>销售信息</legend>
+          <label for="price">
+            请输入服务总价:
+            <input
+              type="text"
+              id="price"
+              name="totalPrice"
+              value={formData.totalPrice}
+              onChange={handleInputChange}
+              className="input-price" placeholder="￥0.00"
+            />
+          </label>
+          <label>
+            选择业务员:
+            <select
+              name="salesPerson"
+              value={formData.salesPerson}
+              onChange={handleInputChange}
+            >
+              <option value="">请选择业务员</option>
+              {salespersons.map((person) => (
+                <option key={person.account} value={person.account}>{`${person.name} (${person.account})`}</option>
+              ))}
+            </select>
+          </label>
+        </fieldset>
 
 
         {formData.showPaperReport && (
