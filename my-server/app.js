@@ -89,12 +89,12 @@ app.post('/commission', async (req, res) => {
 
         for (let item of testItems) {
             const [testItem] = await connection.execute(`
-                INSERT INTO test_items (order_num, create_time, original_no, test_item, test_method, size, quantity, note, status, department_id)
-                VALUES (?, NOW(), ?, ?, ?, ?, ?, ?, '0', ?)
+                INSERT INTO test_items (order_num, create_time, original_no, test_item, test_method, size, quantity, note, status, department_id, deadline)
+                VALUES (?, NOW(), ?, ?, ?, ?, ?, ?, '0', ?, ?)
             `, [orderNum, item.original_no || null,
                 item.test_item || null,
                 item.test_method || null,
-                item.size || null, item.quantity || null, item.note || null, item.department_id || null]);
+                item.size || null, item.quantity || null, item.note || null, item.department_id || null, item.deadline || null]);
 
             const testItemId = testItem.insertId;
 

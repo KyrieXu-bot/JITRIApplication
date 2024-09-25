@@ -182,108 +182,50 @@ button:hover {
 }
 
 
-@media print {
-    body, html {
-        margin: 0;
-        padding: 0;
-        background-color: white;
-        font-family: 'Arial', sans-serif;
-    }
-
-    div, form {
-        margin: 0;
-        padding: 5px;
-
-    }
-
+@media (max-width: 600px) {
+    /* 针对手机屏幕的样式 */
     h1, h2, p {
-        font-size: 6pt;
-        margin-top: 2px;
-        margin-bottom: 2px;
-        font-weight: bold; /* 标题加粗 */
+        font-size: 10pt; /* 调整标题和段落字体大小 */
     }
 
     h3 {
-        font-size: 10px;
-        color: black;
+        font-size: 12px; /* 调整 h3 字体大小 */
     }
-    label {
-        font-size: 9pt;
-        display: block;
-        width: 48%;
-        border: 1px slid black;
-        margin-bottom: 5px; /* 减少标签之间的间距 */
-        padding: 0px;
 
+    label {
+        font-size: 10pt; /* 调整标签字体大小 */
     }
 
     input[type="text"], input[type="number"], input[type="email"], select {
-        width: 80%;
-        max-width: none;
-        height: 25px;
-        padding: 2px 5px;
-        margin: 0;
-        border: 1px solid #ccc; /* 给输入框加上边框 */
-        box-sizing: border-box;
-        font-size: small;
+        width: 100%; /* 输入框和选择框宽度100% */
+        height: 30px; /* 增加高度以便更好地点击 */
+        padding: 5px; /* 增加内边距 */
+        font-size: small; /* 确保字体小 */
     }
 
     table {
-        width: 100%;
-        border-collapse: collapse;
+        display: block; /* 使表格变为块元素 */
+        overflow-x: auto; /* 启用水平滚动 */
+        white-space: nowrap; /* 不允许换行，启用横向滚动 */
     }
 
     th, td {
-        min-width: 120px; /* 每个单元格的最小宽度 */
-
-        padding: 2px;
-        text-align: left;
-        font-size: 8pt;
+        font-size: 8pt; /* 确保表格字体小 */
+        padding: 5px; /* 调整单元格内边距 */
     }
 
-    .add-button, .remove-button, #operation, button, .add-remove-buttons, .hide-on-print {
-        display: none;
+    .add-button, .remove-button, #operation, button {
+        width: 100%; /* 按钮宽度100% */
+        margin-top: 5px; /* 增加按钮之间的间距 */
     }
 
-    fieldset {
-        border: 1px solid #aaa;
-        margin-bottom: 5px;
-        padding: 5px;
-        display: flex;
-        justify-content: space-around;
-    }
-    legend {
-        color: black;
-        font-size: 10px;
-    }
-
-
-    .block{
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-    }
-
-
-    /* 表格样式的检测项目 */
     .test-item-table {
-        width: 100%;
-        border-collapse: collapse;
+        display: block; /* 使测试项目表格为块元素 */
     }
 
-    .test-item-table th, .test-item-table td {
-        max-width: none;
-        border: 1px solid #ccc;
-        padding: 8px;
-        text-align: left;
-    }
-
-    .test-item-table select{
-        width: 90px;
-    }
-
-    .num{
-        display: none;
+    /* 隐藏不必要的列 */
+    .num {
+        display: none; /* 隐藏序号列 */
     }
 }
 

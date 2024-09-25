@@ -9,11 +9,11 @@ function HomePage(){
         <div className="App">
         <header className="App-header">
             <h1>
-            集萃检测
+            欢迎来到集萃检测官网
             </h1>
         </header>
         <button onClick={() => navigate('/form')}>
-          填写委托单
+          点此填写委托单
         </button>
     </div>
     )

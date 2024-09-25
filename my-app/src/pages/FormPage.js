@@ -561,6 +561,7 @@ function FormPage() {
               <th>检测方法</th>
               <th>尺寸</th>
               <th>数量</th>
+              <th>时间周期</th>
               <th>所属部门</th>
               <th>备注</th>
               <th id="operation">操作</th>
@@ -575,6 +576,8 @@ function FormPage() {
                 <td><input type="text" value={item.testMethod} onChange={(e) => handleTestItemChange(index, 'test_method', e.target.value)} /></td>
                 <td><input type="text" valuiie={item.size} onChange={(e) => handleTestItemChange(index, 'size', e.target.value)} /></td>
                 <td><input type="number" value={item.quantity} onChange={(e) => handleTestItemChange(index, 'quantity', e.target.value)} /></td>
+                <td><input type="number" style={{width: 50 + 'px'}} value={item.deadline} onChange={(e) => handleTestItemChange(index, 'deadline', e.target.value)} />天</td>
+
                 <td>
                   <select value={item.department_id || ""} onChange={e => handleDepartmentChange(index, e.target.value)}>
                     <option value="" disabled>---请选择---</option>
@@ -591,7 +594,7 @@ function FormPage() {
               </tr>
             ))}
             <tr>
-              <td colSpan="9">
+              <td colSpan="10">
                 <button type="button" onClick={addTestItem} style={{ width: '100%' }}>添加新项目</button>
               </td>
             </tr>
