@@ -134,7 +134,6 @@ function FormPage() {
 
     getPaymentInfoByPhoneNumber(phoneNumber)
       .then(response => {
-        console.log(response.data)
         setFormData(prevState => ({
           ...prevState,
           payerInfo: {
@@ -453,7 +452,7 @@ function FormPage() {
     <div>
       <h1>检测委托单(Application Form)</h1>
       <p>收样地址：江苏省苏州市相城区青龙岗路286号1楼<br></br>
-        联系人：龚菊红 17306221329<br></br>
+        联系人：龚菊红 17306221329&nbsp;&nbsp;&nbsp;&nbsp;
         邮箱：services@jitri-amrd.com<br></br>
         注：本表中带★号处为必填项目，测试预约安排以邮箱收到的委托单顺序为准，一份委托单只出一份报告。多份报告或英文报告收费。
       </p>
@@ -476,7 +475,7 @@ function FormPage() {
 
         {/* 客户信息输入部分 */}
         <h3>委托方信息</h3>
-        <button type="button" onClick={handlePrefillPaymentInfo}>预填付款方信息</button>
+        <button type="button" className="prefill" onClick={handlePrefillPaymentInfo}>预填付款方信息</button>
         <br></br>
         <div class="block">
           {Object.keys(formData.customerInfo).map(key => (
@@ -561,7 +560,7 @@ function FormPage() {
               <th>检测方法</th>
               <th>尺寸</th>
               <th>数量</th>
-              <th>时间周期</th>
+              <th>时长(/天)</th>
               <th>所属部门</th>
               <th>备注</th>
               <th id="operation">操作</th>
@@ -576,7 +575,7 @@ function FormPage() {
                 <td><input type="text" value={item.testMethod} onChange={(e) => handleTestItemChange(index, 'test_method', e.target.value)} /></td>
                 <td><input type="text" valuiie={item.size} onChange={(e) => handleTestItemChange(index, 'size', e.target.value)} /></td>
                 <td><input type="number" value={item.quantity} onChange={(e) => handleTestItemChange(index, 'quantity', e.target.value)} /></td>
-                <td><input type="number" style={{width: 50 + 'px'}} value={item.deadline} onChange={(e) => handleTestItemChange(index, 'deadline', e.target.value)} />天</td>
+                <td><input type="number" style={{width: 50 + 'px'}} value={item.deadline} onChange={(e) => handleTestItemChange(index, 'deadline', e.target.value)} /></td>
 
                 <td>
                   <select value={item.department_id || ""} onChange={e => handleDepartmentChange(index, e.target.value)}>

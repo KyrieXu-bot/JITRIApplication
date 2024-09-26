@@ -98,7 +98,6 @@ select {
 .submit{
     font-size: 18px; /* 增加字体大小 */
     padding: 12px 24px; /* 增加按钮的大小 */
-
     display: block; /* 使按钮居中 */
     margin: 20px auto; /* 上下保持20px的间距，水平居中 */
 }
@@ -126,11 +125,6 @@ button:hover {
 .test-item-group label:last-child {
     margin-right: 0;
 }
-
-
-
-
-
 
 
 /* 表格样式的检测项目 */
@@ -179,6 +173,130 @@ button:hover {
 .input-price:focus {
     border-color: #0056b3;
     box-shadow: 0 0 8px rgba(0,86,179,0.2);
+}
+
+@media print {
+    body, html {
+        margin: 0;
+        background-color: white;
+        font-family: 'Arial', sans-serif;
+        height: auto;
+    }
+
+    div, form {
+        margin: 0;
+        padding: 5px;
+        height: auto;
+    }
+
+    h1{
+        font-size: 12pt;
+        margin-top: 0px;
+        margin-bottom: 2px;
+        font-weight: bold; /* 标题加粗 */
+    }
+
+    h2{
+        font-size: 10px;
+        margin-top: 2px;
+        margin-bottom: 0px;
+    }
+
+    p{
+        font-size: 8px;
+        margin-top: 2px;
+        margin-bottom: 0px;
+    }
+
+    h3 {
+        font-size: 10px;
+        color: black;
+    }
+    label {
+        font-size: 9px;
+        display: block;
+        width: 48%;
+        border: 1px slid black;
+        margin-bottom: 5px; /* 减少标签之间的间距 */
+        padding: 0px;
+
+    }
+
+    input[type="text"], input[type="number"], input[type="email"], select {
+        width: 50%;
+        max-width: none;
+        height: 19px;
+        padding: 2px 5px;
+        margin: 0;
+        border: 1px solid #ccc; /* 给输入框加上边框 */
+        box-sizing: border-box;
+        font-size: 9px;
+    }
+
+
+
+    .add-button, .remove-button, #operation, button, .prefill, .add-remove-buttons, .hide-on-print, .submit {
+        display: none;
+    }
+
+    fieldset {
+        border: 1px solid #aaa;
+        margin-bottom: 5px;
+        padding: 5px;
+        display: flex;
+        justify-content: space-around;
+    }
+    legend {
+        color: black;
+        font-size: 10px;
+    }
+
+
+    .block{
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+
+    /* 表格样式的检测项目 */
+    .test-item-table {
+        width: 100%;
+        border-collapse: collapse;
+        color: red;
+    }
+
+    .test-item-table tbody{
+        border: 1px solid black;
+    }
+    .test-item-table th, .test-item-table td {
+        min-width: 60px; /* 每个单元格的最小宽度 */
+        border: 1px solid #ccc;
+        font-size: 10px;
+        padding: 2px;
+        text-align: left;
+        margin-right: 0px;
+        word-wrap: break-word; /* 允许内容自动换行 */
+        vertical-align: top; /* 对齐到顶部，以便更好地控制布局 */
+    }
+
+
+    .test-item-table input{
+        width: 100%; /* 调整输入字段和下拉菜单宽度为100% */
+        box-sizing: border-box; /* 包含内边距和边框在内的总宽度 */
+        margin: 0; /* 去除外边距 */
+        padding: 4px; /* 统一输入字段的内边距 */
+        border: 1px solid #ddd; /* 轻微的边框强调 */
+        font-size: 10px; /* 调整字体大小 */
+    
+    }
+
+    .test-item-table select{
+        width: 52px;
+    }
+    .num{
+        display: none;
+    }
 }
 
 

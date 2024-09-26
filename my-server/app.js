@@ -128,7 +128,6 @@ app.post('/commission', async (req, res) => {
 // 在app.js中添加新的路由
 app.get('/prefill-payment-info', async (req, res) => {
     const phoneNumber = req.query.phoneNumber;
-
     if (!phoneNumber) {
         return res.status(400).json({ error: '手机号不能为空' });
     }
