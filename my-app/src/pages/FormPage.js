@@ -417,11 +417,14 @@ function FormPage() {
     createCommission(commissionData)
       .then(response => {
         console.log('Creating commission Success:', response.data);
+        window.location.href = '/';  // 重定向到上级菜单的URL
+
       })
       .catch(error => {
         console.error('Creating commission Error:', error);
       });
     alert('表单已提交，查看控制台获取数据');
+
   };
 
   //需要加必填项(*)的模块
