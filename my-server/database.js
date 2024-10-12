@@ -2,11 +2,19 @@ const mysql = require('mysql2/promise');
 
 const pool = mysql.createPool({
     host: 'localhost',
-    user: 'root',
-    password: 'jitri',
+    user: 'jitri',
+    password: 'jitri@123',
     database: 'jitri'
 });
 
+
+
+// const pool = mysql.createPool({
+//     host: 'localhost',
+//     user: 'root',
+//     password: 'jitri',
+//     database: 'jitri'
+// });
 async function generateOrderNum() {
     const connection = await pool.getConnection();
     try {
@@ -20,5 +28,14 @@ async function generateOrderNum() {
         connection.release();
     }
 }
-
+// 测试数据库连接
+(async function testConnection() {
+    try {
+        const connection = await pool.getConnection();
+        console.log('Database connection successful');
+        connection.release();
+    } catch (error) {
+        console.error('Database connection failed:', error.message);
+    }
+})();
 module.exports = {pool, generateOrderNum};

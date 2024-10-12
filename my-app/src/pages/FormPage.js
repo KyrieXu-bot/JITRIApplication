@@ -50,6 +50,7 @@ function FormPage() {
     },
     sampleType: [],
     testItems: [],
+    orderNum: ''
   });
 
   // 映射客户(委托方)信息字段到更友好的显示名称
@@ -268,6 +269,14 @@ function FormPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // 添加确认提示
+    const confirmation = window.confirm('请确认填写的信息是否正确，确认无误再提交');
+    if (!confirmation) {
+      return; // 用户取消提交
+    }
+
+
     if (formData.reportType.length === 0) {
       alert(`提交失败！报告形式为必填项，请重新选择`);
       return; // 停止提交
@@ -373,7 +382,8 @@ function FormPage() {
         //order表
         service_type: formData.serviceType,
         sample_shipping_address: formData.sampleShippingAddress,
-        total_price: formData.totalPrice
+        total_price: formData.totalPrice,
+        order_num: formData.orderNum || null,  // 如果用户未输入委托单号，传递 null
       },
       paymentInfo: {
         //payment表
@@ -403,7 +413,7 @@ function FormPage() {
         sample_solution_type: formData.sampleSolutionType,
         sample_type: formData.sampleType,
       },
-      assignmentInfo:{
+      assignmentInfo: {
         //assignments表
         account: formData.salesPerson,
       },
@@ -461,6 +471,17 @@ function FormPage() {
       </p>
 
       <form onSubmit={handleSubmit}>
+        <label htmlFor="orderNum">
+          委托单号:
+          <input
+            type="text"
+            id="orderNum"
+            name="orderNum"
+            value={formData.orderNum}
+            onChange={handleInputChange}
+            placeholder="请输入委托单号或留空自动生成"
+          />
+        </label>
         <fieldset>
           <legend>报告形式</legend>
           {Object.keys(reportOptions).map((option) => (
@@ -578,7 +599,7 @@ function FormPage() {
                 <td><input type="text" value={item.testMethod} onChange={(e) => handleTestItemChange(index, 'test_method', e.target.value)} /></td>
                 <td><input type="text" valuiie={item.size} onChange={(e) => handleTestItemChange(index, 'size', e.target.value)} /></td>
                 <td><input type="number" value={item.quantity} onChange={(e) => handleTestItemChange(index, 'quantity', e.target.value)} /></td>
-                <td><input type="number" style={{width: 50 + 'px'}} value={item.deadline} onChange={(e) => handleTestItemChange(index, 'deadline', e.target.value)} /></td>
+                <td><input type="number" style={{ width: 50 + 'px' }} value={item.deadline} onChange={(e) => handleTestItemChange(index, 'deadline', e.target.value)} /></td>
 
                 <td>
                   <select value={item.department_id || ""} onChange={e => handleDepartmentChange(index, e.target.value)}>

@@ -1,21 +1,12 @@
 const express = require('express');
 const cors = require('cors');
 const db = require('./database');
-
+const path = require('path');
 const app = express();
 
 app.use(cors());  // 允许跨域请求
 app.use(express.json());  // 用于解析 JSON 格式的请求体
 
-// 简单的路由来测试服务器
-app.get('/', (req, res) => {
-    res.send('Hello from the server!');
-});
-
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
 
 
 
@@ -46,8 +37,14 @@ app.post('/commission', async (req, res) => {
         customerInfo.contact_phone_num || null,
         customerInfo.contact_email || null]);
         const customerId = customer.insertId;
-        // Generate order code
-        const orderNum = await db.generateOrderNum();
+
+
+        // 如果前端没有传递委托单号，生成一个新的单号
+        let orderNum = orderInfo.order_num;
+        if (!orderNum || orderNum.trim() === '') {
+            orderNum = await db.generateOrderNum(); // 自动生成
+        }
+
 
         // 插入支付信息
         const [payment] = await connection.execute(`
@@ -181,4 +178,37 @@ app.get('/salespersons', async (req, res) => {
         res.status(500).send({ message: 'Failed to fetch data', error: error.message });
     }
 });
+
+app.get('/test-db', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT 1');
+        console.log("Database connection successful");
+
+        res.send('Database connection successful!');
+    } catch (err) {
+        res.status(500).send('Database connection failed: ' + err.message);
+    }
+});
+
+
+
+
+
+// 设置静态文件目录
+app.use(express.static(path.join(__dirname, '../my-app/build')));
+
+
+
+// 处理React路由
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../my-app/build', 'index.html'));
+});
+
+
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+    console.log(`Server is running on http://192.168.9.46:${PORT}`);
+});
+
+
 
