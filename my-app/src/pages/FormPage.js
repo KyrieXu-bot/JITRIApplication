@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { createCommission, getPaymentInfoByPhoneNumber, getSalesperson } from '../api/api';
+import { createCommission, getPaymentInfoByCustomerName, getSalesperson } from '../api/api';
 
 import '../css/Form.css'
 
@@ -127,13 +127,13 @@ function FormPage() {
 
   //预填付款方信息
   const handlePrefillPaymentInfo = () => {
-    const phoneNumber = formData.customerInfo.contactPhoneNum; // 假设你的表单数据中已有phoneNumber字段
-    if (!phoneNumber) {
-      alert('请先填写手机号！');
+    const customerName = formData.customerInfo.customerName; // 假设你的表单数据中已有phoneNumber字段
+    if (!customerName) {
+      alert('请先填写公司/单位名称！');
       return;
     }
 
-    getPaymentInfoByPhoneNumber(phoneNumber)
+    getPaymentInfoByCustomerName(customerName)
       .then(response => {
         setFormData(prevState => ({
           ...prevState,
@@ -390,12 +390,12 @@ function FormPage() {
         vat_type: formData.vatType,
         payer_name: formData.payerInfo.payerName,
         payer_address: formData.payerInfo.payerAddress,
-        payer_phone_num: formData.payerInfo.payerContactPhoneNum,
+        payer_phone_num: formData.payerInfo.payerPhoneNum,
         bank_name: formData.payerInfo.bankName,
         tax_number: formData.payerInfo.taxNumber,
         bank_account: formData.payerInfo.bankAccount,
         payer_contact_name: formData.payerInfo.payerContactName,
-        payer_contact_phone_num: formData.payerInfo.payerPhoneNum,
+        payer_contact_phone_num: formData.payerInfo.payerContactPhoneNum,
         payer_contact_email: formData.payerInfo.payerContactEmail,
       },
       reportInfo: {
@@ -499,20 +499,26 @@ function FormPage() {
 
         {/* 客户信息输入部分 */}
         <h3>委托方信息</h3>
-        <button type="button" className="prefill" onClick={handlePrefillPaymentInfo}>预填付款方信息</button>
-        <br></br>
         <div class="block">
           {Object.keys(formData.customerInfo).map(key => (
-            <label key={key}>
-              {customerInfoLabels[key]} {requiredFields.customerInfo.includes(key) && <span style={{ color: 'red' }}>*</span>}
-              <input
-                type="text"
-                name={key}
-                value={formData.customerInfo[key]}
-                onChange={(e) => handleNestedChange('customerInfo', key, e.target.value)}
-              />
-              <br></br>
-            </label>
+            <React.Fragment key={key}>
+              <label>
+                {customerInfoLabels[key]} {requiredFields.customerInfo.includes(key) && <span style={{ color: 'red' }}>*</span>}
+                <input
+                  type="text"
+                  name={key}
+                  value={formData.customerInfo[key]}
+                  onChange={(e) => handleNestedChange('customerInfo', key, e.target.value)}
+                />
+                <br></br>
+              </label>
+              {/* 在第一个 customerName 后面插入按钮 */}
+              {key === "customerName" && (
+                <button type="button" className="prefill" onClick={handlePrefillPaymentInfo}>
+                  预填委托方和付款方信息
+                </button>
+              )}
+            </React.Fragment>
           ))}
         </div>
 

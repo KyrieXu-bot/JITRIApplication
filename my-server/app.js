@@ -124,16 +124,18 @@ app.post('/commission', async (req, res) => {
 
 // 在app.js中添加新的路由
 app.get('/prefill-payment-info', async (req, res) => {
-    const phoneNumber = req.query.phoneNumber;
-    if (!phoneNumber) {
-        return res.status(400).json({ error: '手机号不能为空' });
+    const customerName = req.query.customerName;
+    if (!customerName) {
+        return res.status(400).json({ error: '公司/单位不能为空' });
     }
 
     try {
         const connection = await db.pool.getConnection();
         try {
+            await connection.beginTransaction();
+
             // 查询 customer_id
-            const [customers] = await connection.query('SELECT customer_id FROM customers WHERE contact_phone_num = ?', [phoneNumber]);
+            const [customers] = await connection.query('SELECT customer_id FROM customers WHERE customer_name = ?', [customerName]);
             if (customers.length === 0) {
                 return res.status(404).json({ error: '未查询到对应的客户信息' });
             }
@@ -152,6 +154,11 @@ app.get('/prefill-payment-info', async (req, res) => {
             }
 
             res.json(paymentDetails[0]);
+            await connection.commit();
+
+        } catch (error) {
+            await connection.rollback(); // 如果有错误，回滚事务
+            throw error; // 将错误抛出以便捕获和处理
         } finally {
             connection.release();
         }
@@ -165,6 +172,8 @@ app.get('/prefill-payment-info', async (req, res) => {
 app.get('/salespersons', async (req, res) => {
     const connection = await db.pool.getConnection();
     try {
+        await connection.beginTransaction();
+
         const departmentId = 4; // 销售部门的ID
         const query = `
             SELECT account, name 
@@ -176,6 +185,10 @@ app.get('/salespersons', async (req, res) => {
     } catch (error) {
         console.error('Failed to fetch salespersons:', error);
         res.status(500).send({ message: 'Failed to fetch data', error: error.message });
+        await connection.rollback(); // 如果有错误，回滚事务
+
+    } finally{
+        connection.release();
     }
 });
 
