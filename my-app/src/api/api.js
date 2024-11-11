@@ -6,9 +6,9 @@ export const createCommission = (commissionData) => {
   return axios.post(`${baseURL}/commission`, commissionData);
 };
 
-export const getPaymentInfoByPhoneNumber = (phoneNumber) => {
+export const getPaymentInfoByCustomerName = (customerName) => {
   return axios.get(`${baseURL}/prefill-payment-info`, {
-    params: { phoneNumber }
+    params: { customerName }
   });
 };
 
