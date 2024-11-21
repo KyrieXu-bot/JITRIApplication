@@ -2,14 +2,22 @@
 
 html, body {
   margin: 0;
-  padding: 0;
   height: 100%;
+  max-height: 500px;
   background-color: #f7f7f7; /* 更柔和的背景色 */
+  height: 100vh; /* 页面高度为整个视口高度 */
+  background-image: url('../../public/JITRI-bgimg.jpeg');
+  background-size: cover; /* 确保图片覆盖整个区域 */
+  background-position: center; /* 图片居中显示 */
+  background-repeat: no-repeat; /* 防止图片重复 */
+  background-attachment: fixed; /* 背景图片固定在视口 */
 }
 
 .App {
   text-align: center;
-  min-height: 100vh;
+  max-height: 1000px;
+  max-width: 1800px; /* 设置最大宽度，防止内容太宽 */
+  margin: 0 auto; /* 自动左右对齐，使内容水平居中 */
   display: flex;
   flex-direction: column;
   justify-content: flex-start; /* 向上对齐 */
@@ -18,37 +26,71 @@ html, body {
   padding-top: 50px; /* 增加顶部内边距，使标题靠上 */
 }
 
+.App>img{
+  width: 16%;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
 .App-header {
-  background-color: #00796b; /* 更深的绿色调 */
-  padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  margin-bottom: 300px; /* 调整标题与按钮之间的间距 */
+  background: linear-gradient(to right, #1e3c72, #2a5298); /* 深蓝到浅蓝的渐变背景 */
+  padding: 40px 200px;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* 增强阴影效果 */
+  margin-bottom: 100px; /* 调整标题与按钮之间的间距 */
 }
 
 .App-header h1 {
   color: white;
-  font-size: 2.5rem;
+  font-size: 2.8rem; /* 略微增大字体 */
   margin: 0;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4); /* 添加文字阴影 */
 }
 
 button {
-  background-color: #009688; /* 按钮颜色 */
+  background: linear-gradient(135deg, #00897b, #26a69a); /* 青绿色渐变 */
   color: white;
+  font-weight: bold;
   border: none;
-  padding: 12px 24px; /* 合理的内边距 */
+  padding: 15px 30px; /* 合理的内边距 */
   font-size: 1.2rem;
-  border-radius: 5px;
+  border-radius: 30px;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.1s; /* 添加点击效果 */
+  transition: background-color 0.3s ease, transform 0.2s; /* 添加点击效果 */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 button:hover {
-  background-color: #00897b; /* 按钮悬停时的颜色变化 */
+  background: linear-gradient(135deg, #00695c, #00897b); /* 鼠标悬停时变深 */
 }
 
 button:active {
-  background-color: #00796b; /* 按钮点击时的颜色变化 */
+  background: linear-gradient(135deg, #004d40, #00796b); /* 点击时更深的青绿 */
   transform: scale(0.98); /* 按钮按下时稍微缩小 */
+}
+
+/* 首页按钮样式 */
+.homeButtonGroup{
+  width: 600px;
+  display: flex;
+  justify-content: space-around;
+  margin-top: 100px;
+}
+.homeButton{
+  width: 200px;
+  height: 50px;
+}
+
+/* 首页copyright */
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.3); /* 半透明的黑色背景 */
+  color: white;
+  text-align: center;
+  padding: 10px 0; /* 增加内边距，让其更加明显 */
+  font-size: 0.9rem; /* 略小的字体，使其不喧宾夺主 */
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3); /* 添加阴影使其更有层次感 */
 }

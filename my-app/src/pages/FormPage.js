@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { createCommission, getPaymentInfoByCustomerName, getSalesperson } from '../api/api';
-
+import { createCommission, getSalesperson, getCustomers, getPayers } from '../api/api';
+import { useNavigate } from 'react-router-dom';
 import '../css/Form.css'
 
 function FormPage() {
-
+  const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [showPayerModal, setShowPayerModal] = useState(false);
   const [salespersons, setSalespersons] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [payers, setPayers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedPayer, setSelectedPayer] = useState(null);
 
   // 静态部门数据
   const departments = [
@@ -13,6 +19,7 @@ function FormPage() {
     { department_id: 2, department_name: '物化性能测试实验室' },
     { department_id: 3, department_name: '力学性能测试实验室' }
   ];
+  const navigate = useNavigate();
 
   // 初始化表单数据
   const [formData, setFormData] = useState({
@@ -54,17 +61,17 @@ function FormPage() {
   });
 
   // 映射客户(委托方)信息字段到更友好的显示名称
-  const customerInfoLabels = {
-    customerName: '公司/单位名称:',
-    customerAddress: '公司/单位地址:',
-    sampleName: '样品名称 Samples Name:',
-    material: '材料 Material:',
-    productNo: '货号或批号 Product or Lot No:',
-    materialSpec: '材料规范 Material Spec:',
-    contactName: '委托联系人:',
-    contactPhoneNum: '电话: ',
-    contactEmail: 'E-mail:'
-  };
+  // const customerInfoLabels = {
+  //   customerName: '公司/单位名称:',
+  //   customerAddress: '公司/单位地址:',
+  //   sampleName: '样品名称 Samples Name:',
+  //   material: '材料 Material:',
+  //   productNo: '货号或批号 Product or Lot No:',
+  //   materialSpec: '材料规范 Material Spec:',
+  //   contactName: '委托联系人:',
+  //   contactPhoneNum: '电话: ',
+  //   contactEmail: 'E-mail:'
+  // };
 
   // 映射付款方信息字段到更友好的显示名称
   const payerInfoLabels = {
@@ -108,6 +115,34 @@ function FormPage() {
 
 
   useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        getCustomers()
+          .then(response => {
+            setCustomers(response.data);
+          })
+          .catch(error => {
+            console.error('拉取委托方信息失败:', error);
+          });
+      } catch (error) {
+        console.error('拉取委托方信息失败:', error);
+      }
+
+    };
+    const fetchPayers = async () => {
+      try {
+        getPayers()
+          .then(response => {
+            setPayers(response.data);
+          })
+          .catch(error => {
+            console.error('拉取付款方信息失败:', error);
+          });
+      } catch (error) {
+        console.error('拉取付款方信息失败:', error);
+      }
+    };
+
     const fetchSalespersons = async () => {
       try {
         getSalesperson()
@@ -122,41 +157,43 @@ function FormPage() {
       }
     };
     fetchSalespersons();
+    fetchCustomers();
+    fetchPayers();
   }, []);
 
 
-  //预填付款方信息
-  const handlePrefillPaymentInfo = () => {
-    const customerName = formData.customerInfo.customerName; // 假设你的表单数据中已有phoneNumber字段
-    if (!customerName) {
-      alert('请先填写公司/单位名称！');
-      return;
-    }
+  // //预填付款方信息
+  // const handlePrefillPaymentInfo = () => {
+  //   const customerName = formData.customerInfo.customerName; // 假设你的表单数据中已有phoneNumber字段
+  //   if (!customerName) {
+  //     alert('请先填写公司/单位名称！');
+  //     return;
+  //   }
 
-    getPaymentInfoByCustomerName(customerName)
-      .then(response => {
-        setFormData(prevState => ({
-          ...prevState,
-          payerInfo: {
-            payerName: response.data.payer_name,
-            payerAddress: response.data.payer_address,
-            payerPhoneNum: response.data.payer_phone_num,
-            bankName: response.data.bank_name,
-            taxNumber: response.data.tax_number,
-            bankAccount: response.data.bank_account,
-            payerContactName: response.data.payer_contact_name,
-            payerContactPhoneNum: response.data.payer_contact_phone_num,
-            payerContactEmail: response.data.payer_contact_email
-          }
-        }));
-        alert('信息预填成功！');
+  //   getPaymentInfoByCustomerName(customerName)
+  //     .then(response => {
+  //       setFormData(prevState => ({
+  //         ...prevState,
+  //         payerInfo: {
+  //           payerName: response.data.payer_name,
+  //           payerAddress: response.data.payer_address,
+  //           payerPhoneNum: response.data.payer_phone_num,
+  //           bankName: response.data.bank_name,
+  //           taxNumber: response.data.tax_number,
+  //           bankAccount: response.data.bank_account,
+  //           payerContactName: response.data.payer_contact_name,
+  //           payerContactPhoneNum: response.data.payer_contact_phone_num,
+  //           payerContactEmail: response.data.payer_contact_email
+  //         }
+  //       }));
+  //       alert('信息预填成功！');
 
-      })
-      .catch(error => {
-        console.error('Error fetching payment info:', error);
-        alert('未查询到对应的付款方信息！');
-      });
-  };
+  //     })
+  //     .catch(error => {
+  //       console.error('Error fetching payment info:', error);
+  //       alert('未查询到对应的付款方信息！');
+  //     });
+  // };
 
 
   const handleDepartmentChange = (index, newDepartmentId) => {
@@ -235,6 +272,9 @@ function FormPage() {
     }
   };
 
+  const handleBack = () => {
+    navigate('/');
+  };
 
   const handleReportTypeChange = (value, checked) => {
     const updatedReportType = checked
@@ -420,7 +460,6 @@ function FormPage() {
       //testItems表
       testItems: formData.testItems
     };
-    console.log("看看往后面传啥：", commissionData)
 
 
     //新建检测
@@ -461,10 +500,30 @@ function FormPage() {
 
   };
 
+
+  const handleCustomerSelect = (customer) => {
+    setSelectedCustomer(customer);
+    setShowCustomerModal(false);
+  };
+
+  const handlePayerSelect = (payer) => {
+    setSelectedPayer(payer);
+    setShowPayerModal(false);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+
+
+  console.log("pa", payers)
   return (
     <div>
+      <img src="/JITRI-logo2.png" alt="logo"></img>
+      <button type="button" onClick={handleBack} className='form-back'>返回首页</button>
       <h1>检测委托单(Application Form)</h1>
-      <p>收样地址：江苏省苏州市相城区青龙岗路286号1楼<br></br>
+      <p className='titleNote'>收样地址：江苏省苏州市相城区青龙岗路286号1楼<br></br>
         联系人：龚菊红 17306221329&nbsp;&nbsp;&nbsp;&nbsp;
         邮箱：services@jitri-amrd.com<br></br>
         注：本表中带★号处为必填项目，测试预约安排以邮箱收到的委托单顺序为准，一份委托单只出一份报告。多份报告或英文报告收费。
@@ -498,7 +557,7 @@ function FormPage() {
 
 
         {/* 客户信息输入部分 */}
-        <h3>委托方信息</h3>
+        {/* <h3>委托方信息</h3>
         <div class="block">
           {Object.keys(formData.customerInfo).map(key => (
             <React.Fragment key={key}>
@@ -511,19 +570,19 @@ function FormPage() {
                   onChange={(e) => handleNestedChange('customerInfo', key, e.target.value)}
                 />
                 <br></br>
-              </label>
-              {/* 在第一个 customerName 后面插入按钮 */}
-              {key === "customerName" && (
+              </label> */}
+        {/* 在第一个 customerName 后面插入按钮 */}
+        {/* {key === "customerName" && (
                 <button type="button" className="prefill" onClick={handlePrefillPaymentInfo}>
                   预填委托方和付款方信息
                 </button>
               )}
             </React.Fragment>
           ))}
-        </div>
+        </div> */}
 
         {/* 客户信息输入部分 */}
-        <h3>付款方</h3>
+        {/* <h3>付款方</h3>
         <fieldset>
           <legend>发票类型</legend>
           <label>
@@ -546,7 +605,25 @@ function FormPage() {
               <br></br>
             </label>
           ))}
+        </div> */}
+        <h3>委托方信息</h3>
+
+        <div class="block">
+          <button type="button" onClick={() => setShowCustomerModal(true)}>
+            选择委托方
+          </button>
+          {selectedCustomer && <p>已选择委托方: {selectedCustomer.customer_name}</p>}
         </div>
+
+        <h3>付款方信息</h3>
+
+        <div class="block">
+          <button type="button" onClick={() => setShowPayerModal(true)}>
+            选择付款方
+          </button>
+          {selectedPayer && <p>已选择付款方: {selectedPayer.payer_name}</p>}
+        </div>
+
 
         {/* 样品信息输入部分 */}
         <h3>样品信息</h3>
@@ -726,6 +803,100 @@ function FormPage() {
         <button type="button" onClick={() => window.print()}>表单打印</button>
         <button type="submit" class="submit">提交表单</button>
 
+
+
+        {/* Customer Modal */}
+        {showCustomerModal && (
+          <div className="modal">
+            <div className="modal-content">
+              <h2 className="modal-title">委托方信息</h2>
+
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                placeholder="搜索委托方"
+              />
+              <div className="table-container">
+
+                <table className="payer-table">
+                  <thead>
+                    <tr>
+                      <th>委托方名称</th>
+                      <th>地址</th>
+                      <th>联系人名称</th>
+                      <th>联系人电话</th>
+                      <th>联系人邮箱</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {customers.map(customer => (
+                      <tr key={customer.id} onClick={() => handleCustomerSelect(customer)}>
+                        <td>{customer.customer_name}</td>
+                        <td>{customer.customer_address}</td>
+                        <td>{customer.contact_name}</td>
+                        <td>{customer.contact_phone_num}</td>
+                        <td>{customer.contact_email}</td>
+                        <td>
+                          <button>选择</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <button onClick={() => setShowCustomerModal(false)}>关闭</button>
+            </div>
+          </div>
+        )}
+
+        {/* Payer Modal */}
+        {showPayerModal && (
+          <div className="modal">
+            <div className="modal-content">
+              {/* Modal Title */}
+              <h2 className="modal-title">付款方信息</h2>
+
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                placeholder="搜索付款方"
+                className="search-input"
+
+              />
+              <div className="table-container">
+                <table className="payer-table">
+                  <thead>
+                    <tr>
+                      <th>付款方名称</th>
+                      <th>地址</th>
+                      <th>电话号码</th>
+                      <th>操作</th>
+
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                    {payers.map(payer => (
+                      <tr key={payer.payment_id} onClick={() => handlePayerSelect(payer)}>
+                        <td>{payer.payer_name}</td>
+                        <td>{payer.payer_address}</td>
+                        <td>{payer.payer_phone_num}</td>
+                        <td>
+                          <button>选择</button>
+                        </td>
+                      </tr>
+
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <button onClick={() => setShowPayerModal(false)}>关闭</button>
+            </div>
+          </div>
+        )}
       </form>
     </div>
   );

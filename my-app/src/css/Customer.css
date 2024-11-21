@@ -1,0 +1,66 @@
+.field-info{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.customer-page>h1{
+    color: white;
+    text-align: center;
+}
+
+.customer-page>img{
+    width: 16%;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+  }
+.customer-button-group{
+    text-align: center;
+    display: flex;
+    justify-content:space-evenly;
+}
+
+.customer-button-group button{
+    width: 100px;
+    height: 40px;
+    font-size: 12px;
+}
+
+.form-group{
+    width: 30%;
+}
+
+/* 弹窗样式 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeInOut 0.2s ease-in-out;
+
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.modal-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}

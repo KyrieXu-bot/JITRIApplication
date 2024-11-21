@@ -6,15 +6,30 @@ body {
     line-height: 1.6;
     margin: 0;
     padding: 20px;
+
 }
 
 div {
     padding: 15px;
 }
 
+div>img{
+    width: 16%;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+.titleNote{
+    color: white;
+}
+
+.form-back{
+    position: absolute;
+    right: 50px;
+}
 /* 标题样式 */
 h1 {
-    color: #0056b3;
+    color: white;
     text-align: center;
 }
 
@@ -156,7 +171,7 @@ button:hover {
     border: none;
     background-color: transparent;
     cursor: pointer;
-    color: #0056b3;
+    color: white;
     font-size: 20px;
     margin: 0 5px;
 }
@@ -175,6 +190,84 @@ button:hover {
     box-shadow: 0 0 8px rgba(0,86,179,0.2);
 }
 
+/* 新增委托人表格 */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modal-content {
+    position: relative;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-height: 80%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  
+  .modal-title {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .search-input {
+    margin-bottom: 20px;
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 16px;
+  }
+  
+  .table-container {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+  }
+  
+  .payer-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .payer-table th, .payer-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  .payer-table th {
+    background-color: #f2f2f2;
+  }
+  
+  .payer-table tr:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+  }
+  
+  
+  .bottom-close-button {
+    align-self: flex-end;
+    padding: 10px 20px;
+    font-size: 16px;
+    margin-top: 20px;
+    cursor: pointer;
+  }
+  
+
+
 @media print {
     body, html {
         margin: 0;
@@ -183,6 +276,13 @@ button:hover {
         height: auto;
     }
 
+    h1 {
+        color: black;
+        text-align: center;
+    }
+    .titleNote{
+        color: black;
+    }
     div, form {
         margin: 0;
         padding: 5px;

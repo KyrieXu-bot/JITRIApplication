@@ -7,15 +7,24 @@ function HomePage(){
 
     return (
         <div className="App">
-        <header className="App-header">
-            <h1>
-            欢迎来到集萃检测官网
-            </h1>
-        </header>
-        <button onClick={() => navigate('/form')}>
-          点此填写委托单
-        </button>
-    </div>
+            <img src="/JITRI-logo2.png" alt="logo"></img>
+            <header className="App-header">
+                <h1>
+                集萃新材料研发有限公司
+                </h1>
+            </header>
+            <div className="homeButtonGroup">
+                <button onClick={() => navigate('/form')} className="homeButton">
+                填写委托单
+                </button>
+                <button onClick={() => navigate('/customer')} className="homeButton">
+                维护委托方
+                </button>
+            </div>
+            <footer class="footer">
+                <p>© 2024 Materials Academy, JITRI. All rights reserved.</p>
+            </footer>
+        </div>
     )
 }
 
