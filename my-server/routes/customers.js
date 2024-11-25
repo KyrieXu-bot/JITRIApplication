@@ -4,7 +4,8 @@ const db = require('../dbConfig/database');
 
 router.get('/', async (req, res) => {
     try {
-        const results = await db.getCustomers();
+        const {searchNameTerm, searchContactNameTerm, searchContactPhoneTerm} = req.query;
+        const results = await db.getCustomers(searchNameTerm, searchContactNameTerm, searchContactPhoneTerm);
         res.json(results);
     } catch (err) {
         res.status(500).json({ error: err.message });

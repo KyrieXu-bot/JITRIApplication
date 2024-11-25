@@ -201,8 +201,15 @@ button:hover {
     display: flex;
     justify-content: center;
     align-items: center;
+    animation: fadeInOut 0.3s ease-in-out;
+
   }
-  
+
+  @keyframes fadeInOut {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
   .modal-content {
     position: relative;
     background: white;
@@ -223,31 +230,57 @@ button:hover {
     font-weight: bold;
   }
   
+  .search-box{
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: baseline;
+    height: 50px;
+    padding: 10px;
+  }
+
   .search-input {
     margin-bottom: 20px;
     padding: 10px;
-    width: 100%;
+    max-width: 20%;
     box-sizing: border-box;
     font-size: 16px;
   }
   
   .table-container {
-    max-height: 300px;
+    max-height: 400px;
+    min-height: 390px;
     overflow-y: auto;
     margin-bottom: 20px;
   }
   
+  .selected-hint{
+    font-weight: bold;
+
+  }
+
   .payer-table {
     width: 100%;
     border-collapse: collapse;
   }
   
+  .title-id {
+    max-width: 30px; /* 将 ID 列的宽度限制在最大 30px */
+    width: 30px; /* 确保 ID 列尽量保持为 30px */
+    overflow: hidden; /* 如果内容过长，隐藏溢出部分 */
+  }
   .payer-table th, .payer-table td {
     border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
+    border: 1px solid rgb(163, 163, 163);
   }
   
+  .payer-table th:not(.title-id), .payer-table td:not(.title-id) {
+    min-width: 90px; /* 为其他列设置最小宽度 90px */
+    
+  }
+
   .payer-table th {
     background-color: #f2f2f2;
   }

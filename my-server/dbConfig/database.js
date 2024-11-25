@@ -1,20 +1,20 @@
 const mysql = require('mysql2/promise');
 
-// const pool = mysql.createPool({
-//     host: 'localhost',
-//     user: 'jitri',
-//     password: 'jitri@123',
-//     database: 'jitri'
-// });
-
-
-
 const pool = mysql.createPool({
     host: 'localhost',
-    user: 'root',
-    password: 'jitri',
+    user: 'jitri',
+    password: 'jitri@123',
     database: 'jitri'
 });
+
+
+
+// const pool = mysql.createPool({
+//     host: 'localhost',
+//     user: 'root',
+//     password: 'jitri',
+//     database: 'jitri'
+// });
 
 
 async function generateOrderNum() {
@@ -32,10 +32,10 @@ async function generateOrderNum() {
 }
 
 
-async function getCustomers() {
+async function getCustomers(searchNameTerm, searchContactNameTerm, searchContactPhoneTerm) {
     const connection = await pool.getConnection();
     try {
-        const [rows] = await connection.query(`
+        let query = `
             SELECT 
                 customer_id,
                 customer_name,
@@ -44,7 +44,32 @@ async function getCustomers() {
                 contact_phone_num,
                 contact_email
             FROM customers
-        `);
+        `;
+
+        const queryParams = [];
+        const conditions = [];
+
+        if (searchNameTerm) {
+            conditions.push('customer_name LIKE ?');
+            queryParams.push(`%${searchNameTerm}%`);
+        }
+
+        if (searchContactNameTerm) {
+            conditions.push('contact_name LIKE ?');
+            queryParams.push(`%${searchContactNameTerm}%`);
+        }
+
+        if (searchContactPhoneTerm) {
+            conditions.push('contact_phone_num LIKE ?');
+            queryParams.push(`%${searchContactPhoneTerm}%`);
+        }
+
+        // 如果有任何条件，添加 WHERE 子句
+        if (conditions.length > 0) {
+            query += ' WHERE ' + conditions.join(' AND ');
+        }
+
+        const [rows] = await connection.query(query, queryParams);
         return rows;
 
     } finally {
@@ -52,10 +77,10 @@ async function getCustomers() {
     }
 }
 
-async function getPayers() {
+async function getPayers(searchNameTerm, searchContactNameTerm, searchContactPhoneTerm) {
     const connection = await pool.getConnection();
     try {
-        const [rows] = await connection.query(`
+        let query = `
             SELECT 
                 payment_id,
                 payer_name,
@@ -68,7 +93,31 @@ async function getPayers() {
                 payer_contact_phone_num,
                 payer_contact_email
             FROM payments
-        `);
+        `;
+        const queryParams = [];
+        const conditions = [];
+
+        if (searchNameTerm) {
+            conditions.push('payer_name LIKE ?');
+            queryParams.push(`%${searchNameTerm}%`);
+        }
+
+        if (searchContactNameTerm) {
+            conditions.push('payer_contact_name LIKE ?');
+            queryParams.push(`%${searchContactNameTerm}%`);
+        }
+
+        if (searchContactPhoneTerm) {
+            conditions.push('payer_contact_phone_num LIKE ?');
+            queryParams.push(`%${searchContactPhoneTerm}%`);
+        }
+
+        // 如果有任何条件，添加 WHERE 子句
+        if (conditions.length > 0) {
+            query += ' WHERE ' + conditions.join(' AND ');
+        }
+
+        const [rows] = await connection.query(query, queryParams);
         return rows;
     } finally {
         connection.release();

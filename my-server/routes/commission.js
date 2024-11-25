@@ -6,14 +6,7 @@ router.post('/', async (req, res) => {
     const connection = await db.pool.getConnection();
     try {
         await connection.beginTransaction();
-        const { customerInfo, orderInfo, paymentInfo, reportInfo, sampleInfo, testItems, assignmentInfo } = req.body;
-
-        // Insert customer information
-        const [customer] = await connection.execute(`
-            INSERT INTO customers (customer_name, customer_address, contact_name, contact_phone_num, contact_email)
-            VALUES (?, ?, ?, ?, ?)
-        `, [customerInfo.customer_name || null, customerInfo.customer_address || null, customerInfo.contact_name || null, customerInfo.contact_phone_num || null, customerInfo.contact_email || null]);
-        const customerId = customer.insertId;
+        const { customerId, vatType, orderInfo, paymentId, reportInfo, sampleInfo, testItems, assignmentInfo } = req.body;
 
         // Generate order number if not provided
         let orderNum = orderInfo.order_num;
@@ -21,18 +14,11 @@ router.post('/', async (req, res) => {
             orderNum = await db.generateOrderNum();
         }
 
-        // Insert payment information
-        const [payment] = await connection.execute(`
-            INSERT INTO payments (vat_type, payer_name, payer_address, payer_phone_num, bank_name, tax_number, bank_account, payer_contact_name, payer_contact_phone_num, payer_contact_email)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [paymentInfo.vat_type || null, paymentInfo.payer_name || null, paymentInfo.payer_address || null, paymentInfo.payer_phone_num || null, paymentInfo.bank_name || null, paymentInfo.tax_number || null, paymentInfo.bank_account || null, paymentInfo.payer_contact_name || null, paymentInfo.payer_contact_phone_num || null, paymentInfo.payer_contact_email || null]);
-        const paymentId = payment.insertId;
-
         // Insert order information
         const [order] = await connection.execute(`
-            INSERT INTO orders (customer_id, create_time, service_type, sample_shipping_address, total_price, payment_id, order_num)
-            VALUES (?, NOW(), ?, ?, ?, ?, ?)
-        `, [customerId || null, orderInfo.service_type || null, orderInfo.sample_shipping_address || null, orderInfo.total_price || null, paymentId || null, orderNum]);
+            INSERT INTO orders (customer_id, create_time, service_type, sample_shipping_address, total_price, payment_id, order_num, vat_type)
+            VALUES (?, NOW(), ?, ?, ?, ?, ?, ?)
+        `, [customerId || null, orderInfo.service_type || null, orderInfo.sample_shipping_address || null, orderInfo.total_price || null, paymentId || null, orderNum, vatType]);
         const orderId = order.insertId;
 
         // Insert sample information

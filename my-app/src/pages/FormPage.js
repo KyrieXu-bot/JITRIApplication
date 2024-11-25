@@ -9,7 +9,14 @@ function FormPage() {
   const [salespersons, setSalespersons] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [payers, setPayers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchCustomerNameTerm, setSearchCustomerNameTerm] = useState('');
+  const [searchContactNameTerm, setSearchContactNameTerm] = useState('');
+  const [searchContactPhoneTerm, setSearchContactPhoneTerm] = useState('');
+
+  const [searchPayerNameTerm, setSearchPayerNameTerm] = useState('');
+  const [searchPayerContactNameTerm, setSearchPayerContactNameTerm] = useState('');
+  const [searchPayerContactPhoneTerm, setSearchPayerContactPhoneTerm] = useState('');
+
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedPayer, setSelectedPayer] = useState(null);
 
@@ -74,17 +81,17 @@ function FormPage() {
   // };
 
   // 映射付款方信息字段到更友好的显示名称
-  const payerInfoLabels = {
-    payerName: '名称:',
-    payerAddress: '地址:',
-    payerPhoneNum: '电话:',
-    bankName: '开户银行:',
-    taxNumber: '税号:',
-    bankAccount: '银行账号:',
-    payerContactName: '付款联系人 Payer:',
-    payerContactPhoneNum: '电话:',
-    payerContactEmail: '电子邮件 E-mail:'
-  };
+  // const payerInfoLabels = {
+  //   payerName: '名称:',
+  //   payerAddress: '地址:',
+  //   payerPhoneNum: '电话:',
+  //   bankName: '开户银行:',
+  //   taxNumber: '税号:',
+  //   bankAccount: '银行账号:',
+  //   payerContactName: '付款联系人 Payer:',
+  //   payerContactPhoneNum: '电话:',
+  //   payerContactEmail: '电子邮件 E-mail:'
+  // };
 
   const sampleInfoLabels = {
     sampleName: '样品名称 Sample Name',
@@ -117,7 +124,10 @@ function FormPage() {
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        getCustomers()
+        getCustomers(searchCustomerNameTerm, 
+          searchContactNameTerm,
+          searchContactPhoneTerm
+        )
           .then(response => {
             setCustomers(response.data);
           })
@@ -127,11 +137,17 @@ function FormPage() {
       } catch (error) {
         console.error('拉取委托方信息失败:', error);
       }
+      
 
     };
+    fetchCustomers();
+
     const fetchPayers = async () => {
       try {
-        getPayers()
+        getPayers(searchPayerNameTerm, 
+          searchPayerContactNameTerm, 
+          searchPayerContactPhoneTerm
+        )
           .then(response => {
             setPayers(response.data);
           })
@@ -142,6 +158,7 @@ function FormPage() {
         console.error('拉取付款方信息失败:', error);
       }
     };
+    fetchPayers();
 
     const fetchSalespersons = async () => {
       try {
@@ -157,9 +174,13 @@ function FormPage() {
       }
     };
     fetchSalespersons();
-    fetchCustomers();
-    fetchPayers();
-  }, []);
+  }, [searchCustomerNameTerm,
+    searchContactNameTerm,
+    searchContactPhoneTerm,
+    searchPayerNameTerm,
+    searchPayerContactNameTerm,
+    searchPayerContactPhoneTerm
+  ]);
 
 
   // //预填付款方信息
@@ -321,66 +342,12 @@ function FormPage() {
       alert(`提交失败！报告形式为必填项，请重新选择`);
       return; // 停止提交
     }
-    // 委托方必填项
-    if (!formData.customerInfo.customerName) {
-      alert(`提交失败！客户(公司/单位)名称为必填项，请重新填写`);
-      return; // 停止提交
-    }
-    if (!formData.customerInfo.customerAddress) {
-      alert(`提交失败！客户地址为必填项，请重新填写`);
-      return; // 停止提交
-    }
 
-    if (!formData.customerInfo.contactName) {
-      alert(`提交失败！委托联系人为必填项，请重新填写`);
-      return; // 停止提交
-    }
-    if (!formData.customerInfo.contactPhoneNum) {
-      alert(`提交失败！客户(公司/单位)电话为必填项，请重新填写`);
-      return; // 停止提交
-    }
     if (!formData.vatType) {
       alert(`提交失败！发票类型为必填项，请重新填写`);
       return; // 停止提交
     }
 
-    //付款方必填项
-    if (!formData.payerInfo.payerName) {
-      alert(`提交失败！付款方${payerInfoLabels.payerName}为必填项，请重新填写`);
-      return; // 停止提交
-    }
-    if (!formData.payerInfo.payerAddress) {
-      alert(`提交失败！付款方${payerInfoLabels.payerAddress}为必填项，请重新填写`);
-      return; // 停止提交
-    }
-    if (!formData.payerInfo.payerPhoneNum) {
-      alert(`提交失败！付款方${payerInfoLabels.payerPhoneNum}为必填项，请重新填写`);
-      return; // 停止提交
-    }
-    if (!formData.payerInfo.bankName) {
-      alert(`提交失败！付款方${payerInfoLabels.bankName}为必填项，请重新填写`);
-      return; // 停止提交
-    }
-    if (!formData.payerInfo.taxNumber) {
-      alert(`提交失败！付款方${payerInfoLabels.taxNumber}为必填项，请重新填写`);
-      return; // 停止提交
-    }
-    if (!formData.payerInfo.bankAccount) {
-      alert(`提交失败！付款方${payerInfoLabels.bankAccount}为必填项，请重新填写`);
-      return; // 停止提交
-    }
-    if (!formData.payerInfo.payerContactName) {
-      alert(`提交失败！付款方${payerInfoLabels.payerContactName}为必填项，请重新填写`);
-      return; // 停止提交
-    }
-    if (!formData.payerInfo.payerPhoneNum) {
-      alert(`提交失败！付款方${payerInfoLabels.payerContactPhoneNum}为必填项，请重新填写`);
-      return; // 停止提交
-    }
-    if (!formData.payerInfo.payerContactEmail) {
-      alert(`提交失败！付款方${payerInfoLabels.payerContactEmail}为必填项，请重新填写`);
-      return; // 停止提交
-    }
 
     if (!formData.sampleInfo.material) {
       alert(`提交失败！材料为必填项，请重新填写`);
@@ -410,14 +377,7 @@ function FormPage() {
     }
 
     const commissionData = {
-      customerInfo: {
-        //customer表
-        customer_name: formData.customerInfo.customerName,
-        customer_address: formData.customerInfo.customerAddress,
-        contact_name: formData.customerInfo.contactName,
-        contact_phone_num: formData.customerInfo.contactPhoneNum,
-        contact_email: formData.customerInfo.contactEmail,
-      },
+      customerId: selectedCustomer.customer_id,
       orderInfo: {
         //order表
         service_type: formData.serviceType,
@@ -425,19 +385,8 @@ function FormPage() {
         total_price: formData.totalPrice,
         order_num: formData.orderNum || null,  // 如果用户未输入委托单号，传递 null
       },
-      paymentInfo: {
-        //payment表
-        vat_type: formData.vatType,
-        payer_name: formData.payerInfo.payerName,
-        payer_address: formData.payerInfo.payerAddress,
-        payer_phone_num: formData.payerInfo.payerPhoneNum,
-        bank_name: formData.payerInfo.bankName,
-        tax_number: formData.payerInfo.taxNumber,
-        bank_account: formData.payerInfo.bankAccount,
-        payer_contact_name: formData.payerInfo.payerContactName,
-        payer_contact_phone_num: formData.payerInfo.payerContactPhoneNum,
-        payer_contact_email: formData.payerInfo.payerContactEmail,
-      },
+      paymentId: selectedPayer.payment_id,
+      vatType: formData.vatType,
       reportInfo: {
         //reports表
         type: formData.reportType,
@@ -459,8 +408,8 @@ function FormPage() {
       },
       //testItems表
       testItems: formData.testItems
-    };
 
+    };
 
     //新建检测
     createCommission(commissionData)
@@ -511,13 +460,6 @@ function FormPage() {
     setShowPayerModal(false);
   };
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-
-
-  console.log("pa", payers)
   return (
     <div>
       <img src="/JITRI-logo2.png" alt="logo"></img>
@@ -612,16 +554,25 @@ function FormPage() {
           <button type="button" onClick={() => setShowCustomerModal(true)}>
             选择委托方
           </button>
-          {selectedCustomer && <p>已选择委托方: {selectedCustomer.customer_name}</p>}
+          {selectedCustomer && <p className='selected-hint'>已选择委托方: {selectedCustomer.customer_name}(联系人:{selectedCustomer.contact_name})</p>}
         </div>
 
         <h3>付款方信息</h3>
 
         <div class="block">
+          <fieldset>
+            <legend>发票类型</legend>
+            <label>
+              <input type="radio" name="vatType" value="1" onChange={handleRadioChange} checked={formData.vatType === '1'} /> 增值税普通发票
+            </label>
+            <label>
+              <input type="radio" name="vatType" value="2" onChange={handleRadioChange} checked={formData.vatType === '2'} /> 增值税专用发票
+            </label>
+          </fieldset>
           <button type="button" onClick={() => setShowPayerModal(true)}>
             选择付款方
           </button>
-          {selectedPayer && <p>已选择付款方: {selectedPayer.payer_name}</p>}
+          {selectedPayer && <p className='selected-hint'>已选择付款方: {selectedPayer.payer_name}(联系人:{selectedPayer.payer_contact_name})</p>}
         </div>
 
 
@@ -810,18 +761,43 @@ function FormPage() {
           <div className="modal">
             <div className="modal-content">
               <h2 className="modal-title">委托方信息</h2>
+              <div className='search-box'>
 
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                placeholder="搜索委托方"
-              />
+                <span>搜索委托方</span>
+                <input
+                  type="text"
+                  value={searchCustomerNameTerm}
+                  onChange={(e) => setSearchCustomerNameTerm(e.target.value)}
+                  placeholder="搜索委托方"
+                  className="search-input"
+
+                />
+                <span>搜索联系人</span>
+                <input
+                  type="text"
+                  value={searchContactNameTerm}
+                  onChange={(e) => setSearchContactNameTerm(e.target.value)}
+                  placeholder="搜索联系人"
+                  className="search-input"
+
+                />
+                <span>搜索联系人电话</span>
+                <input
+                  type="text"
+                  value={searchContactPhoneTerm}
+                  onChange={(e) => setSearchContactPhoneTerm(e.target.value)}
+                  placeholder="搜索联系人电话"
+                  className="search-input"
+
+                />
+              </div>
+              
               <div className="table-container">
-
                 <table className="payer-table">
                   <thead>
                     <tr>
+                    <th className='title-id'>ID</th>
+
                       <th>委托方名称</th>
                       <th>地址</th>
                       <th>联系人名称</th>
@@ -832,14 +808,16 @@ function FormPage() {
                   </thead>
                   <tbody>
                     {customers.map(customer => (
-                      <tr key={customer.id} onClick={() => handleCustomerSelect(customer)}>
+                      <tr key={customer.id}>
+                        <td className='title-id'>{customer.customer_id}</td>
+
                         <td>{customer.customer_name}</td>
                         <td>{customer.customer_address}</td>
                         <td>{customer.contact_name}</td>
                         <td>{customer.contact_phone_num}</td>
                         <td>{customer.contact_email}</td>
                         <td>
-                          <button>选择</button>
+                          <button onClick={() => handleCustomerSelect(customer)}>选择</button>
                         </td>
                       </tr>
                     ))}
@@ -857,35 +835,60 @@ function FormPage() {
             <div className="modal-content">
               {/* Modal Title */}
               <h2 className="modal-title">付款方信息</h2>
+              <div className='search-box'>
+                <span>搜索付款方</span>
+                <input
+                  type="text"
+                  value={searchPayerNameTerm}
+                  onChange={(e) => setSearchPayerNameTerm(e.target.value)}
+                  placeholder="搜索付款方"
+                  className="search-input"
 
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                placeholder="搜索付款方"
-                className="search-input"
+                />
+                <span>搜索联系人</span>
+                <input
+                  type="text"
+                  value={searchPayerContactNameTerm}
+                  onChange={(e) => setSearchPayerContactNameTerm(e.target.value)}
+                  placeholder="搜索联系人"
+                  className="search-input"
 
-              />
+                />
+                <span>搜索联系人电话</span>
+                <input
+                  type="text"
+                  value={searchPayerContactPhoneTerm}
+                  onChange={(e) => setSearchPayerContactPhoneTerm(e.target.value)}
+                  placeholder="搜索联系人电话"
+                  className="search-input"
+
+                />
+
+              </div>
+              
               <div className="table-container">
                 <table className="payer-table">
                   <thead>
                     <tr>
+                      <th className='title-id'>ID</th>
                       <th>付款方名称</th>
                       <th>地址</th>
-                      <th>电话号码</th>
+                      <th>联系人</th>
+                      <th>联系人电话</th>
                       <th>操作</th>
-
                     </tr>
                   </thead>
                   <tbody>
 
                     {payers.map(payer => (
-                      <tr key={payer.payment_id} onClick={() => handlePayerSelect(payer)}>
+                      <tr key={payer.payment_id}>
+                        <td className='title-id'>{payer.payment_id}</td>
                         <td>{payer.payer_name}</td>
                         <td>{payer.payer_address}</td>
-                        <td>{payer.payer_phone_num}</td>
+                        <td>{payer.payer_contact_name}</td>
+                        <td>{payer.payer_contact_phone_num}</td>
                         <td>
-                          <button>选择</button>
+                          <button onClick={() => handlePayerSelect(payer)}>选择</button>
                         </td>
                       </tr>
 

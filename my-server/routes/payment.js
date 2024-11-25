@@ -46,7 +46,8 @@ router.get('/', async (req, res) => {
     // }
 
     try {
-        const results = await db.getPayers();
+        const {searchNameTerm, searchContactNameTerm, searchContactPhoneTerm} = req.query;
+        const results = await db.getPayers(searchNameTerm, searchContactNameTerm, searchContactPhoneTerm);
         res.json(results);
     } catch (err) {
         res.status(500).json({ error: err.message });
