@@ -44,6 +44,7 @@ async function getCustomers(searchNameTerm, searchContactNameTerm, searchContact
                 contact_phone_num,
                 contact_email
             FROM customers
+            WHERE category = '1'
         `;
 
         const queryParams = [];
@@ -66,7 +67,7 @@ async function getCustomers(searchNameTerm, searchContactNameTerm, searchContact
 
         // 如果有任何条件，添加 WHERE 子句
         if (conditions.length > 0) {
-            query += ' WHERE ' + conditions.join(' AND ');
+            query += ' AND ' + conditions.join(' AND ');
         }
 
         const [rows] = await connection.query(query, queryParams);
@@ -93,6 +94,7 @@ async function getPayers(searchNameTerm, searchContactNameTerm, searchContactPho
                 payer_contact_phone_num,
                 payer_contact_email
             FROM payments
+            WHERE category = '1'
         `;
         const queryParams = [];
         const conditions = [];
@@ -114,7 +116,7 @@ async function getPayers(searchNameTerm, searchContactNameTerm, searchContactPho
 
         // 如果有任何条件，添加 WHERE 子句
         if (conditions.length > 0) {
-            query += ' WHERE ' + conditions.join(' AND ');
+            query += ' AND ' + conditions.join(' AND ');
         }
 
         const [rows] = await connection.query(query, queryParams);
@@ -127,11 +129,24 @@ async function getPayers(searchNameTerm, searchContactNameTerm, searchContactPho
 async function insertCustomer(customerData) {
     const connection = await pool.getConnection();
     try {
-        const [result] = await connection.execute(`
-            INSERT INTO customers (customer_name, customer_address, contact_name, contact_phone_num, contact_email)
-            VALUES (?, ?, ?, ?, ?)
+        await connection.beginTransaction();
+
+        const [customerResult] = await connection.execute(`
+            INSERT INTO customers (customer_name, customer_address, contact_name, contact_phone_num, contact_email, category)
+            VALUES (?, ?, ?, ?, ?, '1')
         `, [customerData.customer_name, customerData.customer_address, customerData.contact_name, customerData.contact_phone_num, customerData.contact_email]);
-        return result.insertId;
+        
+        const customerId = customerResult.insertId;
+
+        
+
+        // 提交事务
+        await connection.commit();
+        return customerId;
+    } catch (error) {
+        // 发生错误时回滚事务
+        await connection.rollback();
+        throw error;
     } finally {
         connection.release();
     }
@@ -141,11 +156,44 @@ async function insertPayment(paymentData) {
     const connection = await pool.getConnection();
     try {
         const [result] = await connection.execute(`
-            INSERT INTO payments (payer_name, payer_address, payer_phone_num, bank_name, tax_number, bank_account, payer_contact_name, payer_contact_phone_num, payer_contact_email)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [paymentData.payer_name, paymentData.payer_address, paymentData.payer_phone_num, paymentData.bank_name, paymentData.tax_number, paymentData.bank_account, paymentData.payer_contact_name, paymentData.payer_contact_phone_num, paymentData.payer_contact_email]);
+            INSERT INTO payments (payer_name, payer_address, payer_phone_num, bank_name, tax_number, bank_account, payer_contact_name, payer_contact_phone_num, payer_contact_email, balance, category)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '1')
+        `, [paymentData.payer_name, paymentData.payer_address, paymentData.payer_phone_num, paymentData.bank_name, paymentData.tax_number, paymentData.bank_account, paymentData.payer_contact_name, paymentData.payer_contact_phone_num, paymentData.payer_contact_email, paymentData.balance]);
+        const paymentId = result.insertId;
+        if(paymentData.balance){
+            // 插入交易记录
+            await connection.execute(`
+                INSERT INTO transactions (payment_id, transaction_type, amount, balance_after_transaction, transaction_time, description)
+                VALUES (?, 'DEPOSIT', ?, ?, NOW(), ?)
+            `, [paymentId, paymentData.balance, paymentData.balance, '新用户初始充值']);
+        }
         return result.insertId;
     } finally {
+        connection.release();
+    }
+}
+
+
+
+async function queryPayment(customerId) {
+    const connection = await pool.getConnection();
+    try {
+        const query = `
+            SELECT o.payment_id, o.order_id, o.customer_id,
+                p.payer_name, p.payer_contact_name, p.payer_contact_phone_num
+            FROM orders o
+            JOIN payments p ON o.payment_id = p.payment_id
+            WHERE o.customer_id = ? AND o.payment_id IS NOT NULL
+            LIMIT 1;
+        `;
+        const [rows] = await connection.query(query, [customerId]);
+        await connection.commit();
+
+        return rows;
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+      }finally {
         connection.release();
     }
 }
@@ -171,5 +219,6 @@ module.exports = {
     insertCustomer,
     insertPayment,
     getCustomers,
-    getPayers
+    getPayers,
+    queryPayment
 };

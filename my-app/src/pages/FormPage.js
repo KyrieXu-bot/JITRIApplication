@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { createCommission, getSalesperson, getCustomers, getPayers } from '../api/api';
+import { createCommission, getSalesperson, getCustomers, getPayers, prefillPayment } from '../api/api';
 import { useNavigate } from 'react-router-dom';
 import '../css/Form.css'
 
 function FormPage() {
   const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [showPrefillModal, setShowPrefillModal] = useState(false);
+
   const [showPayerModal, setShowPayerModal] = useState(false);
   const [salespersons, setSalespersons] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [payers, setPayers] = useState([]);
+  const [prefillPayers, setPrefillPayers] = useState([]);
   const [searchCustomerNameTerm, setSearchCustomerNameTerm] = useState('');
   const [searchContactNameTerm, setSearchContactNameTerm] = useState('');
   const [searchContactPhoneTerm, setSearchContactPhoneTerm] = useState('');
@@ -342,13 +345,6 @@ function FormPage() {
       alert(`提交失败！报告形式为必填项，请重新选择`);
       return; // 停止提交
     }
-
-    if (!formData.vatType) {
-      alert(`提交失败！发票类型为必填项，请重新填写`);
-      return; // 停止提交
-    }
-
-
     if (!formData.sampleInfo.material) {
       alert(`提交失败！材料为必填项，请重新填写`);
       return; // 停止提交
@@ -452,7 +448,20 @@ function FormPage() {
 
   const handleCustomerSelect = (customer) => {
     setSelectedCustomer(customer);
-    setShowCustomerModal(false);
+    try {
+      prefillPayment(customer.customer_id)
+        .then(response => {
+          if(response.data){
+            setPrefillPayers(response.data)
+            setShowPrefillModal(true);
+          }
+        })
+        .catch(error => {
+          console.error('拉取付款方信息失败:', error);
+        });
+    } catch (error) {
+      console.error('拉取付款方信息失败:', error);
+    }
   };
 
   const handlePayerSelect = (payer) => {
@@ -460,6 +469,17 @@ function FormPage() {
     setShowPayerModal(false);
   };
 
+  const handlePrefillYes = (payer) => {
+    setSelectedPayer(payer);
+    setShowCustomerModal(false);
+    setShowPrefillModal(false);
+
+  };
+  
+  const handlePrefillNo = () => {
+    setShowCustomerModal(false);
+    setShowPrefillModal(false);
+  };
   return (
     <div>
       <img src="/JITRI-logo2.png" alt="logo"></img>
@@ -554,13 +574,13 @@ function FormPage() {
           <button type="button" onClick={() => setShowCustomerModal(true)}>
             选择委托方
           </button>
-          {selectedCustomer && <p className='selected-hint'>已选择委托方: {selectedCustomer.customer_name}(联系人:{selectedCustomer.contact_name})</p>}
+          {selectedCustomer && <p className='selected-hint'>已选择委托方: {selectedCustomer.customer_name}(联系人:{selectedCustomer.contact_name}, 电话:{selectedCustomer.contact_phone_num})</p>}
         </div>
 
         <h3>付款方信息</h3>
 
         <div class="block">
-          <fieldset>
+          {/* <fieldset>
             <legend>发票类型</legend>
             <label>
               <input type="radio" name="vatType" value="1" onChange={handleRadioChange} checked={formData.vatType === '1'} /> 增值税普通发票
@@ -568,11 +588,11 @@ function FormPage() {
             <label>
               <input type="radio" name="vatType" value="2" onChange={handleRadioChange} checked={formData.vatType === '2'} /> 增值税专用发票
             </label>
-          </fieldset>
+          </fieldset> */}
           <button type="button" onClick={() => setShowPayerModal(true)}>
             选择付款方
           </button>
-          {selectedPayer && <p className='selected-hint'>已选择付款方: {selectedPayer.payer_name}(联系人:{selectedPayer.payer_contact_name})</p>}
+          {selectedPayer && <p className='selected-hint'>已选择付款方: {selectedPayer.payer_name}(联系人:{selectedPayer.payer_contact_name}, 电话:{selectedPayer.payer_contact_phone_num})</p>}
         </div>
 
 
@@ -817,7 +837,7 @@ function FormPage() {
                         <td>{customer.contact_phone_num}</td>
                         <td>{customer.contact_email}</td>
                         <td>
-                          <button onClick={() => handleCustomerSelect(customer)}>选择</button>
+                          <button type="button" onClick={() => handleCustomerSelect(customer)}>选择</button>
                         </td>
                       </tr>
                     ))}
@@ -845,12 +865,12 @@ function FormPage() {
                   className="search-input"
 
                 />
-                <span>搜索联系人</span>
+                <span>搜索联系人/导师</span>
                 <input
                   type="text"
                   value={searchPayerContactNameTerm}
                   onChange={(e) => setSearchPayerContactNameTerm(e.target.value)}
-                  placeholder="搜索联系人"
+                  placeholder="搜索联系人/导师"
                   className="search-input"
 
                 />
@@ -873,7 +893,7 @@ function FormPage() {
                       <th className='title-id'>ID</th>
                       <th>付款方名称</th>
                       <th>地址</th>
-                      <th>联系人</th>
+                      <th>联系人/导师</th>
                       <th>联系人电话</th>
                       <th>操作</th>
                     </tr>
@@ -900,6 +920,49 @@ function FormPage() {
             </div>
           </div>
         )}
+
+
+          {/* 预填消息弹框 */}
+          {showPrefillModal && (
+            <div className="modal">
+            <div className="modal-content">
+              <div>
+                <p>检测到该委托方已绑定了对应的付款方信息：</p>
+                <table className="payer-table">
+                  <thead>
+                    <tr>
+                      <th className='title-id'>ID</th>
+                      <th>付款方名称</th>
+                      <th>联系人/导师</th>
+                      <th>联系人电话</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                    {prefillPayers.map(payer => (
+                      <tr key={payer.payment_id}>
+                        <td className='title-id'>{payer.payment_id}</td>
+                        <td>{payer.payer_name}</td>
+                        <td>{payer.payer_contact_name}</td>
+                        <td>{payer.payer_contact_phone_num}</td>
+                      </tr>
+
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p>请选择是否需要预填？</p>
+              <div className='decide-button'>
+                <button type="button" onClick={() => handlePrefillNo()}>否，我自己选择</button>
+                <button type="button" onClick={() => handlePrefillYes(payers[0])}>是，帮我预填</button>
+              </div>
+
+            </div>
+          </div>
+          )}
+          
+
+
       </form>
     </div>
   );

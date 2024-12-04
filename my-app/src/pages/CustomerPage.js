@@ -10,16 +10,6 @@ function CustomerPage() {
         contact_name: '',
         contact_phone_num: '',
         contact_email: '',
-        payer_name: '',
-        payer_address: '',
-        payer_phone_num: '',
-        bank_name: '',
-        tax_number: '',
-        bank_account: '',
-        payer_contact_name: '',
-        payer_contact_phone_num: '',
-        payer_contact_email: ''
-
     });
     const [showModal, setShowModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -40,9 +30,6 @@ function CustomerPage() {
             'customer_name',
             'contact_name',
             'contact_phone_num',
-            'payer_name',
-            'payer_contact_name',
-            'payer_contact_phone_num'
         ];
         for (let field of requiredFields) {
             if (!formData[field]) {
@@ -75,15 +62,6 @@ function CustomerPage() {
                     contact_name: '',
                     contact_phone_num: '',
                     contact_email: '',
-                    payer_name: '',
-                    payer_address: '',
-                    payer_phone_num: '',
-                    bank_name: '',
-                    tax_number: '',
-                    bank_account: '',
-                    payer_contact_name: '',
-                    payer_contact_phone_num: '',
-                    payer_contact_email: ''
                 });
             }
         } catch (error) {
@@ -166,115 +144,6 @@ function CustomerPage() {
                     </div>
                 </fieldset>
 
-                <fieldset>
-                    <legend>付款方信息</legend>
-                    <div className='field-info'>
-                        <div className="form-group">
-                            <label htmlFor="payer_name">付款方/导师名称：</label>
-                            <input
-                                type="text"
-                                id="payer_name"
-                                name="payer_name"
-                                value={formData.payer_name}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="payer_address">付款方地址：</label>
-                            <input
-                                type="text"
-                                id="payer_address"
-                                name="payer_address"
-                                value={formData.payer_address}
-                                onChange={handleChange}
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="payer_phone_num">付款方电话：</label>
-                            <input
-                                type="text"
-                                id="payer_phone_num"
-                                name="payer_phone_num"
-                                value={formData.payer_phone_num}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="bank_name">开户银行：</label>
-                            <input
-                                type="text"
-                                id="bank_name"
-                                name="bank_name"
-                                value={formData.bank_name}
-                                onChange={handleChange}
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="tax_number">税号：</label>
-                            <input
-                                type="text"
-                                id="tax_number"
-                                name="tax_number"
-                                value={formData.tax_number}
-                                onChange={handleChange}
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="bank_account">银行账户：</label>
-                            <input
-                                type="text"
-                                id="bank_account"
-                                name="bank_account"
-                                value={formData.bank_account}
-                                onChange={handleChange}
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="payer_contact_name">付款联系人名称：</label>
-                            <input
-                                type="text"
-                                id="payer_contact_name"
-                                name="payer_contact_name"
-                                value={formData.payer_contact_name}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="payer_contact_phone_num">付款联系人电话：</label>
-                            <input
-                                type="text"
-                                id="payer_contact_phone_num"
-                                name="payer_contact_phone_num"
-                                value={formData.payer_contact_phone_num}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="payer_contact_email">付款联系人邮箱：</label>
-                            <input
-                                type="email"
-                                id="payer_contact_email"
-                                name="payer_contact_email"
-                                value={formData.payer_contact_email}
-                                onChange={handleChange}
-                            />
-                        </div>
-                    </div>
-
-
-                </fieldset>
                 <div className='customer-button-group'>
                     <button type="submit">新增委托方</button>
                     <button type="button" onClick={handleBack}>返回首页</button>

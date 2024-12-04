@@ -55,4 +55,33 @@ router.get('/', async (req, res) => {
     
 });
 
+
+
+router.post('/create', async (req, res) => {
+    try {
+        const paymentData = req.body;
+        const paymentId = await db.insertPayment(paymentData);
+
+        res.status(201).json({ message: `付款方信息新增成功!\n付款方id:${paymentId}`});
+        
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
+
+router.get('/prefill', async (req, res) => {
+    try {
+        const {customerId} = req.query;
+        const result = await db.queryPayment(customerId);
+        res.status(201).json(result);
+        
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
+
 module.exports = router;

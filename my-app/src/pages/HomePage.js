@@ -14,13 +14,17 @@ function HomePage(){
                 </h1>
             </header>
             <div className="homeButtonGroup">
-                <button onClick={() => navigate('/form')} className="homeButton">
-                填写委托单
-                </button>
+
                 <button onClick={() => navigate('/customer')} className="homeButton">
-                维护委托方
+                新增委托方
+                </button>
+                <button onClick={() => navigate('/payment')} className="homeButton">
+                新增付款方
                 </button>
             </div>
+            <button onClick={() => navigate('/form')} className="fillin-button">
+                填写委托单
+                </button>
             <footer class="footer">
                 <p>© 2024 Materials Academy, JITRI. All rights reserved.</p>
             </footer>
