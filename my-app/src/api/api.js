@@ -22,10 +22,27 @@ export const createCustomer = (customerData) => {
   return axios.post(`${baseURL}/customers/create`, customerData);
 };
 
-export const getCustomers = () => {
-  return axios.get(`${baseURL}/customers/`, {});
+export const createPayment = (paymentData) => {
+  return axios.post(`${baseURL}/payments/create`, paymentData);
 };
 
-export const getPayers = () => {
-  return axios.get(`${baseURL}/payments/`, {});
+export const getCustomers = (searchNameTerm, searchContactNameTerm, searchContactPhoneTerm) => {
+  return axios.get(`${baseURL}/customers/`, {
+    params: {
+      searchNameTerm, searchContactNameTerm, searchContactPhoneTerm
+    }
+  });
+};
+
+export const getPayers = (searchNameTerm, searchContactNameTerm, searchContactPhoneTerm) => {
+  return axios.get(`${baseURL}/payments/`, {
+    params: {
+      searchNameTerm, searchContactNameTerm, searchContactPhoneTerm
+    }
+
+  });
+};
+
+export const prefillPayment = (customerId) => {
+  return axios.get(`${baseURL}/payments/prefill?customerId=${customerId}`);
 };

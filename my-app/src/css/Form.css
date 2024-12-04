@@ -299,8 +299,15 @@ button:hover {
     cursor: pointer;
   }
   
+  /* 选择是否的按钮 */
+  .decide-button{
+    display: flex;
+    justify-content: space-evenly;
+  }
 
-
+  .decide-button>button:first-child{
+    background: linear-gradient(to right, #1e3c72, #2a5298); /* 深蓝到浅蓝的渐变背景 */
+}
 @media print {
     body, html {
         margin: 0;
