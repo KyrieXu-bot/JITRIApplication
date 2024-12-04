@@ -14,14 +14,30 @@ function PaymentPage() {
         payer_contact_name: '',
         payer_contact_phone_num: '',
         payer_contact_email: '',
-        balance:''
+        balance: '',
+        area: '',
+        organization: ''
     });
     const [showModal, setShowModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
     const [responseMessage, setResponseMessage] = useState('');
 
+    const areas = ['上海', '省内', '省外', '苏州', '相城'];
+    const organizations = ['高校','集萃体系','企业','研究所']
+    const handleAreaChange = (index, value) => {
+        setFormData(prevState => ({
+            ...prevState,
+            area: value,
+        }));
+    };
 
+    const handleOrgChange = (index, value) => {
+        setFormData(prevState => ({
+            ...prevState,
+            organization: value,
+        }));
+    };
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({
@@ -71,7 +87,9 @@ function PaymentPage() {
                     payer_contact_name: '',
                     payer_contact_phone_num: '',
                     payer_contact_email: '',
-                    balance:''
+                    area:'',
+                    organization:'',
+                    balance: ''
                 });
             }
         } catch (error) {
@@ -95,7 +113,7 @@ function PaymentPage() {
                     <legend>付款方信息</legend>
                     <div className='field-info'>
                         <div className="form-group">
-                            <label htmlFor="payer_name">付款方/导师名称：</label>
+                            <label htmlFor="payer_name">付款方名称：</label>
                             <input
                                 type="text"
                                 id="payer_name"
@@ -163,7 +181,7 @@ function PaymentPage() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="payer_contact_name">付款联系人名称：</label>
+                            <label htmlFor="payer_contact_name">付款联系人/导师名称：</label>
                             <input
                                 type="text"
                                 id="payer_contact_name"
@@ -195,6 +213,34 @@ function PaymentPage() {
                                 value={formData.payer_contact_email}
                                 onChange={handleChange}
                             />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="area">所在区域</label>
+                            <select 
+                                value={formData.area || ""} 
+                                onChange={e => handleAreaChange(0, e.target.value)}
+                                className='area-select'
+                                required
+                            >
+                                <option value="" disabled>---请选择---</option>
+                                {areas.map((area, idx) => (
+                                    <option key={idx} value={area}>{area}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="organization">单位性质</label>
+                            <select 
+                                value={formData.organization || ""} 
+                                onChange={e => handleOrgChange(0, e.target.value)}
+                                className='area-select'
+                                required
+                            >
+                                <option value="" disabled>---请选择---</option>
+                                {organizations.map((organization, idx) => (
+                                    <option key={idx} value={organization}>{organization}</option>
+                                ))}
+                            </select>
                         </div>
                     </div>
 

@@ -132,9 +132,16 @@ async function insertCustomer(customerData) {
         await connection.beginTransaction();
 
         const [customerResult] = await connection.execute(`
-            INSERT INTO customers (customer_name, customer_address, contact_name, contact_phone_num, contact_email, category)
-            VALUES (?, ?, ?, ?, ?, '1')
-        `, [customerData.customer_name, customerData.customer_address, customerData.contact_name, customerData.contact_phone_num, customerData.contact_email]);
+            INSERT INTO customers (customer_name, customer_address, contact_name, contact_phone_num, contact_email, category, area, organization)
+            VALUES (?, ?, ?, ?, ?, '1', ?, ?)
+        `, [customerData.customer_name, 
+            customerData.customer_address, 
+            customerData.contact_name, 
+            customerData.contact_phone_num, 
+            customerData.contact_email,
+            customerData.area,
+            customerData.organization
+        ]);
         
         const customerId = customerResult.insertId;
 
@@ -156,11 +163,23 @@ async function insertPayment(paymentData) {
     const connection = await pool.getConnection();
     try {
         const [result] = await connection.execute(`
-            INSERT INTO payments (payer_name, payer_address, payer_phone_num, bank_name, tax_number, bank_account, payer_contact_name, payer_contact_phone_num, payer_contact_email, balance, category)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '1')
-        `, [paymentData.payer_name, paymentData.payer_address, paymentData.payer_phone_num, paymentData.bank_name, paymentData.tax_number, paymentData.bank_account, paymentData.payer_contact_name, paymentData.payer_contact_phone_num, paymentData.payer_contact_email, paymentData.balance]);
+            INSERT INTO payments (payer_name, payer_address, payer_phone_num, bank_name, tax_number, bank_account, payer_contact_name, payer_contact_phone_num, payer_contact_email, balance, category, area, organization)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '1', ?, ?)
+        `, [paymentData.payer_name, 
+            paymentData.payer_address, 
+            paymentData.payer_phone_num, 
+            paymentData.bank_name, 
+            paymentData.tax_number, 
+            paymentData.bank_account, 
+            paymentData.payer_contact_name, 
+            paymentData.payer_contact_phone_num, 
+            paymentData.payer_contact_email, 
+            paymentData.balance || null,
+            paymentData.area, 
+            paymentData.organization 
+        ]);
         const paymentId = result.insertId;
-        if(paymentData.balance){
+        if(paymentData.balance && paymentData.balance > 0){
             // 插入交易记录
             await connection.execute(`
                 INSERT INTO transactions (payment_id, transaction_type, amount, balance_after_transaction, transaction_time, description)

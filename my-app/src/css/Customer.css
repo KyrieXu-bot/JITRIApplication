@@ -30,6 +30,10 @@
     width: 30%;
 }
 
+.area-select{
+    width: 100%;
+}
+
 /* 弹窗样式 */
 .modal-overlay {
     position: fixed;

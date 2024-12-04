@@ -221,7 +221,6 @@ function FormPage() {
 
 
   const handleDepartmentChange = (index, newDepartmentId) => {
-    console.log(newDepartmentId)
     const updatedTestItems = formData.testItems.map((item, idx) => {
       if (idx === index) {
         return { ...item, department_id: newDepartmentId };

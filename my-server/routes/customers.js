@@ -15,7 +15,6 @@ router.get('/', async (req, res) => {
 router.post('/create', async (req, res) => {
     try {
         const customerData = req.body;
-        console.log(customerData)
         // Insert customer data into customers table
         const customerId = await db.insertCustomer(customerData);
         res.status(201).json({ message: `委托方信息新增成功!\n客户id:${customerId}`});
