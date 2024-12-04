@@ -35,6 +35,8 @@ async function generateOrderNum() {
 async function getCustomers(searchNameTerm, searchContactNameTerm, searchContactPhoneTerm) {
     const connection = await pool.getConnection();
     try {
+        await connection.beginTransaction();
+
         let query = `
             SELECT 
                 customer_id,
@@ -71,8 +73,14 @@ async function getCustomers(searchNameTerm, searchContactNameTerm, searchContact
         }
 
         const [rows] = await connection.query(query, queryParams);
+        await connection.commit();
+
         return rows;
 
+    } catch (error) {
+        // 发生错误时回滚事务
+        await connection.rollback();
+        throw error;
     } finally {
         connection.release();
     }
@@ -81,6 +89,8 @@ async function getCustomers(searchNameTerm, searchContactNameTerm, searchContact
 async function getPayers(searchNameTerm, searchContactNameTerm, searchContactPhoneTerm) {
     const connection = await pool.getConnection();
     try {
+        await connection.beginTransaction();
+
         let query = `
             SELECT 
                 payment_id,
@@ -120,7 +130,13 @@ async function getPayers(searchNameTerm, searchContactNameTerm, searchContactPho
         }
 
         const [rows] = await connection.query(query, queryParams);
+        await connection.commit();
+
         return rows;
+    } catch (error) {
+        // 发生错误时回滚事务
+        await connection.rollback();
+        throw error;
     } finally {
         connection.release();
     }
@@ -132,21 +148,16 @@ async function insertCustomer(customerData) {
         await connection.beginTransaction();
 
         const [customerResult] = await connection.execute(`
-            INSERT INTO customers (customer_name, customer_address, contact_name, contact_phone_num, contact_email, category, area, organization)
+            INSERT INTO customers (customer_name, customer_address, contact_name, contact_phone_num, contact_email, category)
             VALUES (?, ?, ?, ?, ?, '1', ?, ?)
         `, [customerData.customer_name, 
             customerData.customer_address, 
             customerData.contact_name, 
             customerData.contact_phone_num, 
-            customerData.contact_email,
-            customerData.area,
-            customerData.organization
+            customerData.contact_email
         ]);
         
         const customerId = customerResult.insertId;
-
-        
-
         // 提交事务
         await connection.commit();
         return customerId;
@@ -186,6 +197,7 @@ async function insertPayment(paymentData) {
                 VALUES (?, 'DEPOSIT', ?, ?, NOW(), ?)
             `, [paymentId, paymentData.balance, paymentData.balance, '新用户初始充值']);
         }
+        await connection.commit();
         return result.insertId;
     } finally {
         connection.release();
