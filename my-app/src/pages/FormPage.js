@@ -359,6 +359,14 @@ function FormPage() {
         alert(`提交失败！第${i + 1}个检测项目的数量为必填项，请重新填写`);
         return; // 停止提交
       }
+      if (!testItem.deadline) {
+        alert(`提交失败！第${i + 1}个检测项目的时长为必填项，请重新填写`);
+        return; // 停止提交
+      }
+      if (!testItem.department_id) {
+        alert(`提交失败！第${i + 1}个检测项目的所在部门为必填项，请重新填写`);
+        return; // 停止提交
+      }
     }
 
     if (!formData.serviceType) {
@@ -631,14 +639,15 @@ function FormPage() {
         <table className="test-item-table">
           <thead>
             <tr>
+              
               <th className="num">序号 No.</th>
-              <th>样品原号</th>
+              <th>样品原号<span style={{ color: 'red' }}>*</span></th>
               <th>检测项目</th>
               <th>检测方法</th>
               <th>尺寸</th>
-              <th>数量</th>
-              <th>时长(/天)</th>
-              <th>所属部门</th>
+              <th>数量<span style={{ color: 'red' }}>*</span></th>
+              <th>时长(/天)<span style={{ color: 'red' }}>*</span></th>
+              <th>所属部门<span style={{ color: 'red' }}>*</span></th>
               <th>备注</th>
               <th id="operation">操作</th>
             </tr>
