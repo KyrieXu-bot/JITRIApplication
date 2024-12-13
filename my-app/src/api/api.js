@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseURL = 'http://192.168.9.46:3001';
+const baseURL = 'http://localhost:3001';
 
 export const createCommission = (commissionData) => {
   return axios.post(`${baseURL}/commission`, commissionData);
@@ -46,3 +46,12 @@ export const getPayers = (searchNameTerm, searchContactNameTerm, searchContactPh
 export const prefillPayment = (customerId) => {
   return axios.get(`${baseURL}/payments/prefill?customerId=${customerId}`);
 };
+
+export const validatePhone = (phoneNumber) => {
+  return axios.post(`${baseURL}/customers/check-phone`, { contactPhoneNum: phoneNumber });
+};
+    
+export const validatePayerPhone = (phoneNumber) => {
+  return axios.post(`${baseURL}/payments/check-phone`, { payerContactPhoneNum: phoneNumber });
+};
+   

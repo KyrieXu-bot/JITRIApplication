@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createPayment } from '../api/api';
+import { createPayment, validatePayerPhone } from '../api/api';
 import { useNavigate } from 'react-router-dom';
 import '../css/Customer.css'
 
@@ -22,6 +22,7 @@ function PaymentPage() {
     const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
     const [responseMessage, setResponseMessage] = useState('');
+    const [showPhoneValidModal, setShowPhoneValidModal] = useState(false);
 
     const areas = ['上海', '省内', '省外', '苏州', '相城'];
     const organizations = ['高校','集萃体系','企业','研究所']
@@ -71,27 +72,34 @@ function PaymentPage() {
     const confirmSubmit = async () => {
         setShowModal(false);
         try {
-            // Replace with your backend API URL
-            const response = await createPayment(formData);
-            if (response.status === 201 && response.data) {
-                setResponseMessage(response.data.message); // Update the state with the success message
-
-                // Clear form data after submission
-                setFormData({
-                    payer_name: '',
-                    payer_address: '',
-                    payer_phone_num: '',
-                    bank_name: '',
-                    tax_number: '',
-                    bank_account: '',
-                    payer_contact_name: '',
-                    payer_contact_phone_num: '',
-                    payer_contact_email: '',
-                    area:'',
-                    organization:'',
-                    balance: ''
-                });
+            const isValidPhone = await validatePayerPhone(formData.payer_contact_phone_num);
+            // 根据返回的结果设置验证状态
+            if (isValidPhone.data.exists) {
+                setShowPhoneValidModal(true);
+                setErrorMessage('手机号已被注册');
+            } else{
+                const response = await createPayment(formData);
+                if (response.status === 201 && response.data) {
+                    setResponseMessage(response.data.message); // Update the state with the success message
+    
+                    // Clear form data after submission
+                    setFormData({
+                        payer_name: '',
+                        payer_address: '',
+                        payer_phone_num: '',
+                        bank_name: '',
+                        tax_number: '',
+                        bank_account: '',
+                        payer_contact_name: '',
+                        payer_contact_phone_num: '',
+                        payer_contact_email: '',
+                        area:'',
+                        organization:'',
+                        balance: ''
+                    });
+                }
             }
+            
         } catch (error) {
             console.error('There was an error adding the customer!', error);
             setResponseMessage(`Error: ${error.message}`);
@@ -291,6 +299,15 @@ function PaymentPage() {
                         </div>
                     </div>
 
+                </div>
+            )}
+
+            {showPhoneValidModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h3>该手机号已被注册</h3>
+                        <button className="btn btn-secondary" onClick={() => setShowPhoneValidModal(false)}>关闭</button>
+                    </div>
                 </div>
             )}
         </div>

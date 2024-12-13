@@ -1,20 +1,19 @@
 const mysql = require('mysql2/promise');
 
-const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'jitri',
-    password: 'jitri@123',
-    database: 'jitri'
-});
-
-
-
 // const pool = mysql.createPool({
 //     host: 'localhost',
-//     user: 'root',
-//     password: 'jitri',
+//     user: 'jitri',
+//     password: 'jitri@123',
 //     database: 'jitri'
 // });
+
+
+const pool = mysql.createPool({
+    host: 'localhost',
+    user: 'root',
+    password: 'jitri',
+    database: 'jitri'
+});
 
 
 async function generateOrderNum() {
@@ -149,7 +148,7 @@ async function insertCustomer(customerData) {
 
         const [customerResult] = await connection.execute(`
             INSERT INTO customers (customer_name, customer_address, contact_name, contact_phone_num, contact_email, category)
-            VALUES (?, ?, ?, ?, ?, '1', ?, ?)
+            VALUES (?, ?, ?, ?, ?, '1')
         `, [customerData.customer_name, 
             customerData.customer_address, 
             customerData.contact_name, 

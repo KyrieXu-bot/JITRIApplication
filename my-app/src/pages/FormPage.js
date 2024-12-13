@@ -27,7 +27,9 @@ function FormPage() {
   const departments = [
     { department_id: 1, department_name: '显微组织表征实验室' },
     { department_id: 2, department_name: '物化性能测试实验室' },
-    { department_id: 3, department_name: '力学性能测试实验室' }
+    { department_id: 3, department_name: '力学性能测试实验室' },
+    { department_id: 4, department_name: '市场部门' }
+
   ];
   const navigate = useNavigate();
 
@@ -962,7 +964,7 @@ function FormPage() {
               <p>请选择是否需要预填？</p>
               <div className='decide-button'>
                 <button type="button" onClick={() => handlePrefillNo()}>否，我自己选择</button>
-                <button type="button" onClick={() => handlePrefillYes(payers[0])}>是，帮我预填</button>
+                <button type="button" onClick={() => handlePrefillYes(prefillPayers[0])}>是，帮我预填</button>
               </div>
 
             </div>

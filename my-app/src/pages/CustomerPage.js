@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createCustomer } from '../api/api';
+import { createCustomer, validatePhone } from '../api/api';
 import { useNavigate } from 'react-router-dom';
 import '../css/Customer.css'
 
@@ -12,6 +12,8 @@ function CustomerPage() {
         contact_email: '',
     });
     const [showModal, setShowModal] = useState(false);
+    const [showPhoneValidModal, setShowPhoneValidModal] = useState(false);
+
     const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
     const [responseMessage, setResponseMessage] = useState('');
@@ -49,20 +51,29 @@ function CustomerPage() {
     const confirmSubmit = async () => {
         setShowModal(false);
         try {
-            // Replace with your backend API URL
-            const response = await createCustomer(formData);
-            if (response.status === 201 && response.data) {
-                setResponseMessage(response.data.message); // Update the state with the success message
+            const isValidPhone = await validatePhone(formData.contact_phone_num);
+            // 根据返回的结果设置验证状态
+            if (isValidPhone.data.exists) {
+                console.log("true")
+                setShowPhoneValidModal(true);
+                setErrorMessage('手机号已被注册');
+            } else {
+                const response = await createCustomer(formData);
+                if (response.status === 201 && response.data) {
+                    setResponseMessage(response.data.message); // Update the state with the success message
 
-                // Clear form data after submission
-                setFormData({
-                    customer_name: '',
-                    customer_address: '',
-                    contact_name: '',
-                    contact_phone_num: '',
-                    contact_email: '',
-                });
+                    // Clear form data after submission
+                    setFormData({
+                        customer_name: '',
+                        customer_address: '',
+                        contact_name: '',
+                        contact_phone_num: '',
+                        contact_email: '',
+                    });
+                }
             }
+
+            
         } catch (error) {
             console.error('There was an error adding the customer!', error);
             setResponseMessage(`Error: ${error.message}`);
@@ -173,6 +184,15 @@ function CustomerPage() {
                         </div>
                     </div>
 
+                </div>
+            )}
+
+            {showPhoneValidModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h3>该手机号已被注册</h3>
+                        <button className="btn btn-secondary" onClick={() => setShowPhoneValidModal(false)}>关闭</button>
+                    </div>
                 </div>
             )}
         </div>

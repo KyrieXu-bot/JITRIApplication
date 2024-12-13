@@ -24,5 +24,20 @@ router.post('/create', async (req, res) => {
     }
 });
 
+// 检查手机号是否存在
+router.post('/check-phone', async (req, res) => {
+    const { contactPhoneNum } = req.body;
+
+    try {
+        const [result] = await db.pool.query('SELECT COUNT(*) FROM customers WHERE contact_phone_num = ?', [contactPhoneNum]);
+        if (result[0]['COUNT(*)'] > 0) {
+            return res.json({ exists: true });
+        }
+        return res.json({ exists: false });
+    } catch (error) {
+        console.error('数据库查询失败:', error);
+        return res.status(500).json({ error: '数据库错误' });
+    }
+});
 
 module.exports = router;
