@@ -16,8 +16,8 @@ router.post('/', async (req, res) => {
 
         // Insert order information
         const [order] = await connection.execute(`
-            INSERT INTO orders (customer_id, create_time, service_type, sample_shipping_address, total_price, payment_id, order_num, vat_type)
-            VALUES (?, NOW(), ?, ?, ?, ?, ?, ?)
+            INSERT INTO orders (customer_id, create_time, service_type, sample_shipping_address, total_price, payment_id, order_num, vat_type, order_status)
+            VALUES (?, NOW(), ?, ?, ?, ?, ?, ?, '0')
         `, [customerId || null, orderInfo.service_type || null, orderInfo.sample_shipping_address || null, orderInfo.total_price || null, paymentId || null, orderNum, vatType]);
         const orderId = order.insertId;
 

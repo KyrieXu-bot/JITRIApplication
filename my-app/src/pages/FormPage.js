@@ -421,12 +421,13 @@ function FormPage() {
       .then(response => {
         console.log('Creating commission Success:', response.data);
         window.location.href = '/';  // 重定向到上级菜单的URL
+        alert(`表单提交成功！委托单号为: ${response.data.orderNum}。`);
 
       })
       .catch(error => {
+        alert('服务器出现错误，请重试')
         console.error('Creating commission Error:', error);
       });
-    alert('表单已提交，查看控制台获取数据');
 
   };
 
@@ -643,8 +644,8 @@ function FormPage() {
             <tr>
               
               <th className="num">序号 No.</th>
-              <th>样品原号<span style={{ color: 'red' }}>*</span></th>
-              <th>检测项目</th>
+              <th>样品原号</th>
+              <th>检测项目<span style={{ color: 'red' }}>*</span></th>
               <th>检测方法</th>
               <th>尺寸</th>
               <th>数量<span style={{ color: 'red' }}>*</span></th>
