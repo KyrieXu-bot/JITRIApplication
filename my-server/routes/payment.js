@@ -85,10 +85,10 @@ router.get('/prefill', async (req, res) => {
 
 // 检查手机号是否存在
 router.post('/check-phone', async (req, res) => {
-    const { payerContactPhoneNum } = req.body;
+    const { payerContactPhoneNum, payerName } = req.body;
 
     try {
-        const [result] = await db.pool.query('SELECT COUNT(*) FROM payments WHERE payer_contact_phone_num = ?', [payerContactPhoneNum]);
+        const [result] = await db.pool.query('SELECT COUNT(*) FROM payments WHERE payer_contact_phone_num = ? AND payer_name = ?', [payerContactPhoneNum, payerName]);
         if (result[0]['COUNT(*)'] > 0) {
             return res.json({ exists: true });
         }

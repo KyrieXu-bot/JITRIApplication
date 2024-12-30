@@ -47,11 +47,11 @@ export const prefillPayment = (customerId) => {
   return axios.get(`${baseURL}/payments/prefill?customerId=${customerId}`);
 };
 
-export const validatePhone = (phoneNumber) => {
-  return axios.post(`${baseURL}/customers/check-phone`, { contactPhoneNum: phoneNumber });
+export const validatePhone = (phoneNumber, customerName) => {
+  return axios.post(`${baseURL}/customers/check-phone`, { contactPhoneNum: phoneNumber , customerName: customerName});
 };
     
-export const validatePayerPhone = (phoneNumber) => {
-  return axios.post(`${baseURL}/payments/check-phone`, { payerContactPhoneNum: phoneNumber });
+export const validatePayerPhone = (phoneNumber, payerName) => {
+  return axios.post(`${baseURL}/payments/check-phone`, { payerContactPhoneNum: phoneNumber, payerName: payerName });
 };
    

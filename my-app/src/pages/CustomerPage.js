@@ -51,12 +51,11 @@ function CustomerPage() {
     const confirmSubmit = async () => {
         setShowModal(false);
         try {
-            const isValidPhone = await validatePhone(formData.contact_phone_num);
+            const isValidPhone = await validatePhone(formData.contact_phone_num, formData.customer_name);
             // 根据返回的结果设置验证状态
             if (isValidPhone.data.exists) {
-                console.log("true")
                 setShowPhoneValidModal(true);
-                setErrorMessage('手机号已被注册');
+                setErrorMessage('该委托方和手机号已被注册');
             } else {
                 const response = await createCustomer(formData);
                 if (response.status === 201 && response.data) {
@@ -190,7 +189,7 @@ function CustomerPage() {
             {showPhoneValidModal && (
                 <div className="modal-overlay">
                     <div className="modal-content">
-                        <h3>该手机号已被注册</h3>
+                        <h3>该委托方和手机号已被注册</h3>
                         <button className="btn btn-secondary" onClick={() => setShowPhoneValidModal(false)}>关闭</button>
                     </div>
                 </div>

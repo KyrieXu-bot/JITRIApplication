@@ -26,10 +26,10 @@ router.post('/create', async (req, res) => {
 
 // 检查手机号是否存在
 router.post('/check-phone', async (req, res) => {
-    const { contactPhoneNum } = req.body;
+    const { contactPhoneNum, customerName } = req.body;
 
     try {
-        const [result] = await db.pool.query('SELECT COUNT(*) FROM customers WHERE contact_phone_num = ?', [contactPhoneNum]);
+        const [result] = await db.pool.query('SELECT COUNT(*) FROM customers WHERE contact_phone_num = ? AND customer_name = ?', [contactPhoneNum, customerName]);
         if (result[0]['COUNT(*)'] > 0) {
             return res.json({ exists: true });
         }

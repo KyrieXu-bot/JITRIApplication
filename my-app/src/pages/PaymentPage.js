@@ -72,11 +72,11 @@ function PaymentPage() {
     const confirmSubmit = async () => {
         setShowModal(false);
         try {
-            const isValidPhone = await validatePayerPhone(formData.payer_contact_phone_num);
+            const isValidPhone = await validatePayerPhone(formData.payer_contact_phone_num, formData.payer_name);
             // 根据返回的结果设置验证状态
             if (isValidPhone.data.exists) {
                 setShowPhoneValidModal(true);
-                setErrorMessage('手机号已被注册');
+                setErrorMessage('该付款方和手机号已被注册');
             } else{
                 const response = await createPayment(formData);
                 if (response.status === 201 && response.data) {
@@ -305,7 +305,7 @@ function PaymentPage() {
             {showPhoneValidModal && (
                 <div className="modal-overlay">
                     <div className="modal-content">
-                        <h3>该手机号已被注册</h3>
+                        <h3>该付款方和手机号已被注册</h3>
                         <button className="btn btn-secondary" onClick={() => setShowPhoneValidModal(false)}>关闭</button>
                     </div>
                 </div>
