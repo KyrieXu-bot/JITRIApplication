@@ -1,19 +1,19 @@
 const mysql = require('mysql2/promise');
 
-// const pool = mysql.createPool({
-//     host: 'localhost',
-//     user: 'jitri',
-//     password: 'jitri@123',
-//     database: 'jitri'
-// });
-
-
 const pool = mysql.createPool({
     host: 'localhost',
-    user: 'root',
-    password: 'jitri',
+    user: 'jitri',
+    password: 'jitri@123',
     database: 'jitri'
 });
+
+
+// const pool = mysql.createPool({
+//     host: 'localhost',
+//     user: 'root',
+//     password: 'jitri',
+//     database: 'jitri'
+// });
 
 
 async function generateOrderNum() {
@@ -184,7 +184,7 @@ async function insertPayment(paymentData) {
             paymentData.payer_contact_name, 
             paymentData.payer_contact_phone_num, 
             paymentData.payer_contact_email, 
-            paymentData.balance || null,
+            paymentData.balance || 0,
             paymentData.area, 
             paymentData.organization 
         ]);
