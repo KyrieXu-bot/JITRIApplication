@@ -43,6 +43,15 @@ export const getPayers = (searchNameTerm, searchContactNameTerm, searchContactPh
   });
 };
 
+export const getPayersGroup = (searchNameTerm) => {
+  return axios.get(`${baseURL}/payments/group`, {
+    params: {
+      searchNameTerm
+    }
+
+  });
+};
+
 export const prefillPayment = (customerId) => {
   return axios.get(`${baseURL}/payments/prefill?customerId=${customerId}`);
 };
