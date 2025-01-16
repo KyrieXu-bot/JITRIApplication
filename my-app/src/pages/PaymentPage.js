@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPayment, validatePayerPhone } from '../api/api';
+import { getPayersGroup } from '../api/api';
+
 import { useNavigate } from 'react-router-dom';
 import '../css/Customer.css'
 
@@ -22,7 +24,11 @@ function PaymentPage() {
     const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
     const [responseMessage, setResponseMessage] = useState('');
+    const [searchPayerNameTerm, setSearchPayerNameTerm] = useState('');
+    const [payers, setPayers] = useState([]);
+
     const [showPhoneValidModal, setShowPhoneValidModal] = useState(false);
+    const [showPayerModal, setShowPayerModal] = useState(false);
 
     const areas = ['上海', '省内', '省外', '苏州', '相城'];
     const organizations = ['高校','集萃体系','企业','研究所']
@@ -68,6 +74,37 @@ function PaymentPage() {
             setShowModal(true);
         }
     };
+
+    useEffect(() => {
+        const fetchPayers = async () => {
+            try {
+            getPayersGroup(searchPayerNameTerm)
+                .then(response => {
+                setPayers(response.data);
+                })
+                .catch(error => {
+                console.error('拉取付款方信息失败:', error);
+                });
+            } catch (error) {
+            console.error('拉取付款方信息失败:', error);
+            }
+        };
+        fetchPayers();
+    }, [searchPayerNameTerm]);
+      
+
+    const handlePayerSelect = async (payer) => {
+        setFormData({
+            payer_name: payer.payer_name,
+            payer_address: payer.payer_address,
+            payer_phone_num: payer.payer_phone_num,
+            bank_name: payer.bank_name,
+            tax_number: payer.tax_number,
+            bank_account: payer.bank_account,
+        });
+        setShowPayerModal(false);
+    };
+
 
     const confirmSubmit = async () => {
         setShowModal(false);
@@ -119,6 +156,9 @@ function PaymentPage() {
             <form onSubmit={handleSubmit}>
                 <fieldset>
                     <legend>付款方信息</legend>
+                    <button type="button" onClick={() => setShowPayerModal(true)}>
+                    预填付款方信息
+                    </button>
                     <div className='field-info'>
                         <div className="form-group">
                             <label htmlFor="payer_name">付款方名称：</label>
@@ -289,6 +329,63 @@ function PaymentPage() {
                     </div>
                 </div>
             )}
+
+            {showPayerModal && (
+                <div className="modal">
+                    <div className="modal-content">
+                    {/* Modal Title */}
+                    <h2 className="modal-title">付款方信息</h2>
+                    <div className='search-box'>
+                        <span>搜索付款方</span>
+                        <input
+                        type="text"
+                        value={searchPayerNameTerm}
+                        onChange={(e) => setSearchPayerNameTerm(e.target.value)}
+                        placeholder="搜索付款方"
+                        className="search-input"
+
+                        />
+                    </div>
+                    
+                    <div className="table-container">
+                        <table className="payer-table">
+                        <thead>
+                            <tr>
+                            <th>付款方名称</th>
+                            <th>地址</th>
+                            <th>付款方电话</th>
+                            <th>开户银行</th>
+                            <th>税号</th>
+                            <th>银行账户</th>
+                            <th>操作</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {payers.map(payer => (
+                                <tr key={payer.payment_id}>
+                                    <td>{payer.payer_name}</td>
+                                    <td>{payer.payer_address}</td>
+                                    <td>{payer.payer_phone_num}</td>
+                                    <td>{payer.bank_name}</td>
+                                    <td>{payer.tax_number}</td>
+                                    <td>{payer.bank_account}</td>
+
+                                    <td>
+                                    <button onClick={() => handlePayerSelect(payer)}>选择</button>
+                                    </td>
+                                </tr>
+                            ))}
+
+                        </tbody>
+                        </table>
+                    </div>
+                    <button onClick={() => setShowPayerModal(false)}>关闭</button>
+                    </div>
+                </div>
+            )}
+
+
             {responseMessage && (
                 <div className="modal-overlay">
                     <div className="modal-content">

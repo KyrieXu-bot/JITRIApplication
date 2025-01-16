@@ -1,19 +1,19 @@
 const mysql = require('mysql2/promise');
 
-const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'jitri',
-    password: 'jitri@123',
-    database: 'jitri'
-});
-
-
 // const pool = mysql.createPool({
 //     host: 'localhost',
-//     user: 'root',
-//     password: 'jitri',
+//     user: 'jitri',
+//     password: 'jitri@123',
 //     database: 'jitri'
 // });
+
+
+const pool = mysql.createPool({
+    host: 'localhost',
+    user: 'root',
+    password: 'jitri',
+    database: 'jitri'
+});
 
 
 async function generateOrderNum() {
@@ -141,6 +141,58 @@ async function getPayers(searchNameTerm, searchContactNameTerm, searchContactPho
     }
 }
 
+async function getPayersGroup(searchNameTerm) {
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        let query = `
+            SELECT 
+                payer_name,
+                payer_address,
+                payer_phone_num,
+                bank_name,
+                tax_number,
+                bank_account
+            FROM payments
+            WHERE category = '1'
+        `;
+        const queryParams = [];
+        const conditions = [];
+
+        if (searchNameTerm) {
+            conditions.push('payer_name LIKE ?');
+            queryParams.push(`%${searchNameTerm}%`);
+        }
+
+        // 如果有任何条件，添加 WHERE 子句
+        if (conditions.length > 0) {
+            query += ' AND ' + conditions.join(' AND ');
+        }
+
+        query += `
+            GROUP BY 
+                payer_name,
+                payer_address,
+                payer_phone_num,
+                bank_name,
+                tax_number,
+                bank_account
+        `;
+
+        const [rows] = await connection.query(query, queryParams);
+        await connection.commit();
+
+        return rows;
+    } catch (error) {
+        // 发生错误时回滚事务
+        await connection.rollback();
+        throw error;
+    } finally {
+        connection.release();
+    }
+}
+
 async function insertCustomer(customerData) {
     const connection = await pool.getConnection();
     try {
@@ -250,5 +302,6 @@ module.exports = {
     insertPayment,
     getCustomers,
     getPayers,
-    queryPayment
+    queryPayment,
+    getPayersGroup
 };
