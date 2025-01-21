@@ -235,7 +235,7 @@ async function insertPayment(paymentData) {
             paymentData.bank_account, 
             paymentData.payer_contact_name, 
             paymentData.payer_contact_phone_num, 
-            paymentData.payer_contact_email, 
+            paymentData.payer_contact_email || null, 
             paymentData.balance || 0,
             paymentData.area, 
             paymentData.organization 
