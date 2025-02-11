@@ -47,9 +47,9 @@ router.post('/', async (req, res) => {
 
             // Insert assignment
             await connection.execute(`
-                INSERT INTO assignments (test_item_id, account)
-                VALUES (?, ?)
-            `, [testItemId, assignmentInfo.account]);
+                INSERT INTO assignments (test_item_id, account, is_assigned)
+                VALUES (?, ?, ?)
+            `, [testItemId, assignmentInfo.account, 0]);
         }
     
         // Insert report information

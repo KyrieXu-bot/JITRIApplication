@@ -50,8 +50,10 @@ function CustomerPage() {
 
     const confirmSubmit = async () => {
         setShowModal(false);
-        try {
-            const isValidPhone = await validatePhone(formData.contact_phone_num, formData.customer_name);
+        try {// 去掉电话号码和客户名字中的空格
+            const cleanedPhone = formData.contact_phone_num.replace(/\s+/g, '');
+            const cleanedName = formData.customer_name.replace(/\s+/g, '');
+            const isValidPhone = await validatePhone(cleanedPhone, cleanedName);
             // 根据返回的结果设置验证状态
             if (isValidPhone.data.exists) {
                 setShowPhoneValidModal(true);

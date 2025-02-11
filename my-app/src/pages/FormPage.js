@@ -461,9 +461,12 @@ function FormPage() {
     try {
       prefillPayment(customer.customer_id)
         .then(response => {
-          if(response.data){
+          if(response.data.length > 0){
             setPrefillPayers(response.data)
             setShowPrefillModal(true);
+          }
+          else{
+            setShowCustomerModal(false);
           }
         })
         .catch(error => {
