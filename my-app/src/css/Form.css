@@ -20,7 +20,7 @@ div>img{
     left: 10px;
 }
 .titleNote{
-    color: white;
+    color: black;
 }
 
 .form-back{
@@ -171,11 +171,15 @@ button:hover {
     background-color: transparent;
     cursor: pointer;
     color: white;
-    font-size: 20px;
+    font-size: 15px;
     margin: 0 5px;
+    padding:10px 10px;
 }
 
-
+.selected-price{
+    font-size: 14px;
+    padding: 0px 5px;
+}
 .input-price {
     font-size: 16px;
     padding: 8px 12px;
@@ -306,6 +310,9 @@ button:hover {
 
   .decide-button>button:first-child{
     background: linear-gradient(to right, #1e3c72, #2a5298); /* 深蓝到浅蓝的渐变背景 */
+}
+.num{
+    max-width: 40px;
 }
 @media print {
     body, html {

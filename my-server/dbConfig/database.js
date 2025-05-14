@@ -193,6 +193,36 @@ async function getPayersGroup(searchNameTerm) {
     }
 }
 
+// Function to fetch prices based on search parameters
+async function getPrices(testItemName, testCondition) {
+    const connection = await pool.getConnection();
+    try {
+        let query = 'SELECT * FROM price WHERE 1=1';
+        let params = [];
+    
+        if (testItemName) {
+            query += ' AND test_item_name LIKE ?';
+            params.push(`%${testItemName}%`);
+        }
+    
+        if (testCondition) {
+            query += ' AND test_condition LIKE ?';
+            params.push(`%${testCondition}%`);
+        }
+        await connection.beginTransaction();
+        const [results] = await connection.execute(query, params);
+        await connection.commit();
+        return results;
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+    } finally {
+        connection.release();
+    }
+
+}
+
+
 async function insertCustomer(customerData) {
     const connection = await pool.getConnection();
     try {
@@ -303,5 +333,6 @@ module.exports = {
     getCustomers,
     getPayers,
     queryPayment,
-    getPayersGroup
+    getPayersGroup,
+    getPrices
 };

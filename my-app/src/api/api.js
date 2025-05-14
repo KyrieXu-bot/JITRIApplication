@@ -6,6 +6,14 @@ export const createCommission = (commissionData) => {
   return axios.post(`${baseURL}/commission`, commissionData);
 };
 
+export const generateDocument = (templateData) => {
+  return axios.post(
+    `${baseURL}/documents`,
+    templateData,
+    { responseType: 'blob' }
+  );
+};
+
 export const getPaymentInfoByCustomerName = (customerName) => {
   return axios.get(`${baseURL}/payments`, {
     params: { customerName }
@@ -43,6 +51,14 @@ export const getPayers = (searchNameTerm, searchContactNameTerm, searchContactPh
   });
 };
 
+export const getPrices = (searchTestItem, searchTestCondition) => {
+  return axios.get(`${baseURL}/price/`, {
+    params: {
+      searchTestItem, searchTestCondition
+    }
+  });
+};
+
 export const getPayersGroup = (searchNameTerm) => {
   return axios.get(`${baseURL}/payments/group`, {
     params: {
@@ -62,5 +78,9 @@ export const validatePhone = (phoneNumber, customerName) => {
     
 export const validatePayerPhone = (phoneNumber, payerName) => {
   return axios.post(`${baseURL}/payments/check-phone`, { payerContactPhoneNum: phoneNumber, payerName: payerName });
+};
+
+export const getSalespersonContact = (account) => {
+  return axios.post(`${baseURL}/salespersons/sales-info`, { account: account });;
 };
    

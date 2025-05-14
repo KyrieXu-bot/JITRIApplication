@@ -12,12 +12,17 @@ const commissionRoutes = require('./routes/commission');
 const paymentRoutes = require('./routes/payment');
 const salespersonRoutes = require('./routes/salespersons');
 const testRoutes = require('./routes/test');
+const priceRoutes = require('./routes/price');
+const documentRoutes = require('./routes/documents');
 
 app.use('/customers', customerRoutes);
 app.use('/commission', commissionRoutes);
 app.use('/payments', paymentRoutes);
 app.use('/salespersons', salespersonRoutes);
 app.use('/test-db', testRoutes);
+app.use('/price', priceRoutes);
+app.use('/documents', documentRoutes);
+
 
 // 设置静态文件目录
 app.use(express.static(path.join(__dirname, '../my-app/build')));

@@ -24,4 +24,28 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.post('/sales-info', async (req, res) => {
+    const connection = await db.pool.getConnection();
+    try {
+      const { account } = req.body;
+      const query = `
+        SELECT user_email, user_phone_num
+        FROM users
+        WHERE account = ?;
+      `;
+      const [rows] = await connection.query(query, [account]);
+  
+      if (rows.length === 0) {
+        return res.status(404).json({ message: 'Salesperson not found' });
+      }
+      res.json(rows[0]);
+    } catch (error) {
+      console.error('Failed to fetch salesperson contact info:', error);
+      res.status(500).json({ message: 'Failed to fetch contact info', error: error.message });
+    } finally {
+      connection.release();
+    }
+  });
+
+  
 module.exports = router;
