@@ -156,7 +156,9 @@ const hazardOptions = [
   { key: 'Flammability',label: '易燃易爆 Flammability' },
   { key: 'Irritation',  label: '刺激性 Irritation' },
   { key: 'Volatility',  label: '易挥发 Volatility' },
-  { key: 'Fragile',     label: '易碎 Fragile' }
+  { key: 'Fragile',     label: '易碎 Fragile' },
+  { key: 'Other',     label: '其他 Other' }
+
 ];
 
 const magnetismOptions = [
@@ -279,7 +281,6 @@ const conductivityOptions = [
           original_no: '',
           test_item: '',
           test_method: '',
-          size: '',
           quantity: '',
           note: '',
           department_id: '',
@@ -437,8 +438,10 @@ const conductivityOptions = [
     setSalesName(sel ? sel.name : '');
     getSalespersonContact(account)
       .then(response => {
-        setSalesEmail(response.data.user_email);
-        setSalesPhone(response.data.user_phone_num);
+        const email = response.data.user_email?.trim() || '';
+        const phone = response.data.user_phone_num?.trim() || '';
+        setSalesEmail(email);
+        setSalesPhone(phone);
       })
       .catch(err => {
         console.error('获取业务员联系信息失败', err);
@@ -454,8 +457,36 @@ const conductivityOptions = [
     if (!window.confirm('请确认填写的信息是否正确，确认无误再提交')) return;
   
     // 2. 必填项校验
+
+    if (!formData.salesPerson) {
+      alert('提交失败！服务方联系人为必填项，请选择业务员');
+      return;
+    }
+
+    if (!selectedCustomer) {
+      alert('提交失败！请先选择委托方');
+      return;
+    }
+    if (!formData.vatType) {
+      alert('提交失败！发票类型为必填项，请选择增值税发票类型');
+      return;
+    }
+    if (!selectedPayer) {
+      alert('提交失败！请先选择付款方');
+      return;
+    }
+
+    if (!formData.serviceType) {
+      alert('提交失败！周期类型为必填项，请重新选择');
+      return;
+    }
+
     if (formData.reportType.length === 0) {
-      alert('提交失败！报告形式为必填项，请重新选择');
+      alert('提交失败！报告文档为必填项，请重新选择');
+      return;
+    }
+    if (!formData.paperReportShippingType) {
+      alert('提交失败！纸质版报告寄送地址为必填项，请选择寄送方式');
       return;
     }
     if (!formData.reportHeader) {
@@ -468,14 +499,6 @@ const conductivityOptions = [
     }
     if (!formData.reportForm) {
       alert('提交失败！报告版式为必填项，请重新选择');
-      return;
-    }
-    if (!selectedCustomer) {
-      alert('提交失败！请先选择委托方');
-      return;
-    }
-    if (!selectedPayer) {
-      alert('提交失败！请先选择付款方');
       return;
     }
     if (formData.testItems.length === 0) {
@@ -513,11 +536,36 @@ const conductivityOptions = [
         alert(`提交失败！第${i+1}行：数量为必填项`);
         return;
       }
+      if (!ti.department_id) {
+        alert(`提交失败！第${i+1}行：部门为必填项`);
+        return;
+      }
     }
-    if (!formData.serviceType) {
-      alert('提交失败！周期类型为必填项，请重新选择');
+
+    // 样品要求
+    const req = formData.sampleRequirements;
+    if (!req.hazards.length) {
+      alert('提交失败！样品危险特性为必填项，请至少选择一项');
       return;
     }
+    if (!req.magnetism) {
+      alert('提交失败！样品磁性为必填项，请选择');
+      return;
+    }
+    if (!req.conductivity) {
+      alert('提交失败！样品导电性为必填项，请选择');
+      return;
+    }
+    if (!req.breakable) {
+      alert('提交失败！是否可破坏为必填项，请选择');
+      return;
+    }
+    if (!req.brittle) {
+      alert('提交失败！是否孤品为必填项，请选择');
+      return;
+    }
+
+    // 余样处置
     if (!formData.sampleSolutionType) {
       alert('提交失败！余样处置为必填项，请重新选择');
       return;
@@ -585,6 +633,7 @@ const conductivityOptions = [
         test_method: item.test_method,
         sample_preparation: item.sample_preparation,
         quantity: item.quantity,
+        department_id: item.department_id,
         note: item.note
       })),
   
@@ -597,6 +646,14 @@ const conductivityOptions = [
     try {
       const response = await createCommission(commissionData);
       alert(`表单提交成功！委托单号为: ${response.data.orderNum}`);
+
+      const sampleTypeMap = {
+        1: '板材',
+        2: '棒材',
+        3: '粉末',
+        4: '液体',
+        5: '其他'
+      };
 
       const templateData = {
           // —— 订单信息 ——  
@@ -651,6 +708,8 @@ const conductivityOptions = [
           hazardIrritationSymbol:  commissionData.sampleRequirements.hazards.includes('Irritation')  ? '☑' : '☐',
           hazardVolatilitySymbol:  commissionData.sampleRequirements.hazards.includes('Volatility')  ? '☑' : '☐',
           hazardFragileSymbol:     commissionData.sampleRequirements.hazards.includes('Fragile')     ? '☑' : '☐', 
+          hazardOtherSymbol:     commissionData.sampleRequirements.hazards.includes('Other')     ? '☑' : '☐', 
+
           hazard_other:   (commissionData.sampleRequirements.hazardOther  || ''),
 
           // —— 样品磁性 Sample magnetism ——  
@@ -681,9 +740,10 @@ const conductivityOptions = [
           // —— 检测项目列表 ——  
           testItems: commissionData.testItems.map(item => ({
             ...item,
+            material: item.material.trim(),
+            sampleTypeLabel: sampleTypeMap[item.sample_type] || '',
             samplePrepYesSymbol: item.sample_preparation === '1' ? '☑' : '☐',
             samplePrepNoSymbol:  item.sample_preparation === '0' ? '☑' : '☐',
-
           })),
 
           // —— 客户信息 ——  
@@ -721,7 +781,7 @@ const conductivityOptions = [
       window.URL.revokeObjectURL(url);
   
       // 5) 最后再跳回首页
-      //window.location.href = '/';
+      window.location.href = '/';
 
     } catch (error) {
       const msg =
@@ -794,7 +854,7 @@ const conductivityOptions = [
 
         <p>Receiver Name：集萃新材料研发有限公司</p>
 
-        <label>联系人 Contact：</label>
+        <label>联系人 Contact：&nbsp;<span style={{ color: 'red' }}>*</span></label>
         <select
           name="salesPerson"
           value={formData.salesPerson}
@@ -816,7 +876,7 @@ const conductivityOptions = [
         <p>
           加★内容为必填项The field marked with★must be filled.
         </p>
-        <h3>委托方信息 Applicant Information</h3>
+        <h3>委托方信息 Applicant Information&nbsp;<span style={{ color: 'red' }}>*</span></h3>
         <div class="block">
           <button type="button" onClick={() => setShowCustomerModal(true)}>
             选择委托方
@@ -838,11 +898,11 @@ const conductivityOptions = [
           </p>
         </div>
 
-        <h3>付款方信息 Payer Information</h3>
+        <h3>付款方信息 Payer Information&nbsp;<span style={{ color: 'red' }}>*</span></h3>
 
         <div class="block">
           <fieldset>
-            <legend>发票类型</legend>
+            <legend>发票类型&nbsp;<span style={{ color: 'red' }}>*</span></legend>
             <label>
               <input type="radio" name="vatType" value="1" onChange={handleRadioChange} checked={formData.vatType === '1'} /> 增值税普通发票
             </label>
@@ -895,7 +955,7 @@ const conductivityOptions = [
 
         <h3>报告要求 Report Requirements</h3>
         <fieldset>
-          <legend>报告文档 Report Content</legend>
+          <legend>报告文档 Report Content&nbsp;<span style={{ color: 'red' }}>*</span></legend>
           {Object.keys(reportOptions).map((option) => (
             <label key={option}>
               <input
@@ -908,7 +968,7 @@ const conductivityOptions = [
           ))}
         </fieldset>
         <fieldset>
-          <legend>纸质版报告寄送地址 Paper delivery address:</legend>
+          <legend>纸质版报告寄送地址 Paper delivery address&nbsp;<span style={{ color: 'red' }}>*</span></legend>
           {/* 例如邮寄选项 */}
           <label>
             <input type="radio" name="paperReportShippingType" value="1" onChange={handleRadioChange} /> 邮寄到委托方 To the applicant
@@ -983,121 +1043,120 @@ const conductivityOptions = [
 
 
         <h3>检测项目</h3>
-        <table className="test-item-table">
-          <thead>
-            <tr>
+        <div className="test-item-table-wrapper">
+          <table className="test-item-table">
+            <thead>
+              <tr>
 
-              <th className="num">序号 No.</th>
-              <th>样品名称 Sample Name</th>
-              <th>材质 Material</th>
-              <th>样品类型 Sample Type</th>
-              <th>样品原号<br></br>Sample No.</th>
-              <th>检测项目<span style={{ color: 'red' }}>*</span><br></br>Test Items</th>
-              <th>检测标准<br></br>Methods</th>
-              <th>制样 Sample preparation</th>
-              <th>尺寸</th>
-              <th>数量<span style={{ color: 'red' }}>*</span><br></br>Qty</th>
-              <th>时长(/天)<span style={{ color: 'red' }}>*</span></th>
-              <th>所属部门<span style={{ color: 'red' }}>*</span></th>
-              <th>备注<br></br>Remarks</th>
-              <th id="operation">操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {formData.testItems.map((item, index) => (
-              <tr key={index}>
-                <td className="num">{index + 1}</td>
-                {/* 样品名称 */}
-                <td>
-                  <input
-                    type="text"
-                    value={item.sampleName}
-                    onChange={e => handleTestItemChange(index, 'sampleName', e.target.value)}
-                  />
-                </td>
-
-                {/* 材质 */}
-                <td>
-                  <input
-                    type="text"
-                    value={item.material}
-                    onChange={e => handleTestItemChange(index, 'material', e.target.value)}
-                  />
-                </td>
-
-                {/* 样品类型 */}
-                <td>
-                  <select
-                    value={item.sampleType}
-                    onChange={e => handleTestItemChange(index, 'sampleType', e.target.value)}
-                  >
-                    <option value="" disabled>请选择</option>
-                    {Object.entries(typeMappings.sampleType).map(([label, val]) => (
-                      <option key={val} value={val}>{label}</option>
-                    ))}
-                  </select>
-                </td>
-
-                <td><input type="text" value={item.originalNo} onChange={(e) => handleTestItemChange(index, 'original_no', e.target.value)} /></td>
-                {item.price_id ? (
-                  <td className='selected-price'>
-                    <span>{item.test_item}</span>
-                    <span>(单价{item.unit_price}元)</span>
-
-                  </td>
-                ) : (
-                  <td><input type="text" value={item.test_item} onChange={(e) => handleTestItemChange(index, 'test_item', e.target.value)} /></td>
-
-                )}
-                <td><input type="text" value={item.testMethod} onChange={(e) => handleTestItemChange(index, 'test_method', e.target.value)} /></td>
-                <td>
-                  <select
-                    value={item.sample_preparation}
-                    onChange={e => handleTestItemChange(index, 'sample_preparation', e.target.value)}
-                  >
-                    <option value="" disabled>--请选择--</option>
-                    <option value="1">是 Yes</option>
-                    <option value="0">否 No</option>
-                  </select>
-                </td>
-                <td><input type="text" valuiie={item.size} onChange={(e) => handleTestItemChange(index, 'size', e.target.value)} /></td>
-                <td><input type="number" min="0" value={item.quantity} onChange={(e) => handleTestItemChange(index, 'quantity', e.target.value)} /></td>
-                <td><input type="number" min="0" style={{ width: 50 + 'px' }} value={item.deadline} onChange={(e) => handleTestItemChange(index, 'deadline', e.target.value)} /></td>
-
-                {item.price_id ? (
-                  <td className='selected-price'>
-                    <span>{departments.find(dept => dept.department_id === item.department_id)?.department_name || '未知部门'}</span>
-                  </td>
-                ) : (
+                <th className="num">序号</th>
+                <th>样品名称<span style={{ color: 'red' }}>*</span><br></br>Sample Name</th>
+                <th>材质<span style={{ color: 'red' }}>*</span><br></br>Material</th>
+                <th>样品类型<span style={{ color: 'red' }}>*</span><br></br>Sample Type</th>
+                <th>样品原号<br></br>Sample No.</th>
+                <th>检测项目<span style={{ color: 'red' }}>*</span><br></br>Test Items</th>
+                <th>检测标准<span style={{ color: 'red' }}>*</span><br></br>Methods</th>
+                <th>制样<span style={{ color: 'red' }}>*</span><br></br>Sample preparation</th>
+                <th>数量<span style={{ color: 'red' }}>*</span><br></br>Qty</th>
+                <th>时长(/天)</th>
+                <th>所属部门<span style={{ color: 'red' }}>*</span></th>
+                <th>备注<br></br>Remarks</th>
+                <th className="action-col">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {formData.testItems.map((item, index) => (
+                <tr key={index}>
+                  <td className="num">{index + 1}</td>
+                  {/* 样品名称 */}
                   <td>
-                    <select value={item.department_id || ""} onChange={e => handleDepartmentChange(index, e.target.value)}>
-                      <option value="" disabled>---请选择---</option>
-                      {departments.map(dept => (
-                        <option key={dept.department_id} value={dept.department_id}>{dept.department_name}</option>
+                    <input
+                      type="text"
+                      value={item.sampleName}
+                      onChange={e => handleTestItemChange(index, 'sampleName', e.target.value)}
+                    />
+                  </td>
+
+                  {/* 材质 */}
+                  <td>
+                    <input
+                      type="text"
+                      value={item.material}
+                      onChange={e => handleTestItemChange(index, 'material', e.target.value)}
+                    />
+                  </td>
+
+                  {/* 样品类型 */}
+                  <td>
+                    <select
+                      value={item.sampleType}
+                      onChange={e => handleTestItemChange(index, 'sampleType', e.target.value)}
+                    >
+                      <option value="" disabled>请选择</option>
+                      {Object.entries(typeMappings.sampleType).map(([label, val]) => (
+                        <option key={val} value={val}>{label}</option>
                       ))}
                     </select>
                   </td>
-                )}
-                <td><input type="text" value={item.note} onChange={(e) => handleTestItemChange(index, 'note', e.target.value)} /></td>
-                <td className="add-remove-buttons">
-                  <button type="button" className="add-button" onClick={() => {
-                    setSelectedTestIndex(index);  // Store the current row index
-                    setShowPriceModal(true);      // Show the modal
-                  }}>
-                    选择项目
-                  </button>
-                  <button type="button" className="remove-button" onClick={() => removeTestItem(index)}>删除</button>
-                </td>
-              </tr>
-            ))}
-            <tr>
-              <td colSpan="14">
-                <button type="button" onClick={addTestItem} style={{ width: '100%' }}>添加新项目</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
 
+                  <td><input type="text" value={item.originalNo} onChange={(e) => handleTestItemChange(index, 'original_no', e.target.value)} /></td>
+                  {item.price_id ? (
+                    <td className='selected-price'>
+                      <span>{item.test_item}</span>
+                      <span>(单价{item.unit_price}元)</span>
+
+                    </td>
+                  ) : (
+                    <td><input type="text" value={item.test_item} onChange={(e) => handleTestItemChange(index, 'test_item', e.target.value)} /></td>
+
+                  )}
+                  <td><input type="text" value={item.testMethod} onChange={(e) => handleTestItemChange(index, 'test_method', e.target.value)} /></td>
+                  <td>
+                    <select
+                      value={item.sample_preparation}
+                      onChange={e => handleTestItemChange(index, 'sample_preparation', e.target.value)}
+                    >
+                      <option value="" disabled>--请选择--</option>
+                      <option value="1">是 Yes</option>
+                      <option value="0">否 No</option>
+                    </select>
+                  </td>
+                  <td><input type="number" min="0" value={item.quantity} onChange={(e) => handleTestItemChange(index, 'quantity', e.target.value)} /></td>
+                  <td><input type="number" min="0" style={{ width: 50 + 'px' }} value={item.deadline} onChange={(e) => handleTestItemChange(index, 'deadline', e.target.value)} /></td>
+
+                  {item.price_id ? (
+                    <td className='selected-price'>
+                      <span>{departments.find(dept => dept.department_id === item.department_id)?.department_name || '未知部门'}</span>
+                    </td>
+                  ) : (
+                    <td>
+                      <select value={item.department_id || ""} onChange={e => handleDepartmentChange(index, e.target.value)}>
+                        <option value="" disabled>---请选择---</option>
+                        {departments.map(dept => (
+                          <option key={dept.department_id} value={dept.department_id}>{dept.department_name}</option>
+                        ))}
+                      </select>
+                    </td>
+                  )}
+                  <td><input type="text" value={item.note} onChange={(e) => handleTestItemChange(index, 'note', e.target.value)} /></td>
+                  <td className="action-col add-remove-buttons">
+                    <button type="button" className="add-button" onClick={() => {
+                      setSelectedTestIndex(index);  // Store the current row index
+                      setShowPriceModal(true);      // Show the modal
+                    }}>
+                      选择项目
+                    </button>
+                    <button type="button" className="remove-button" onClick={() => removeTestItem(index)}>删除</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="add-test-item-button">
+          <button type="button" onClick={addTestItem}>
+            添加新项目
+          </button>
+      </div>
         <div className="block">
           <label>
             其他要求 Other Requirements:
@@ -1132,7 +1191,7 @@ const conductivityOptions = [
           <legend>样品信息 Sample Infomation</legend>
           {/* 危险特性 */}
         <div className="sample-section">
-          <p>危险特性 Hazard:</p>
+          <p>危险特性 Hazard:&nbsp;<span style={{ color: 'red' }}>*</span></p>
           {hazardOptions.map(opt => (
             <label key={opt.key} style={{ marginRight: 12 }}>
               <input
@@ -1158,7 +1217,7 @@ const conductivityOptions = [
 
         {/* 样品磁性 */}
         <div className="sample-section">
-          <p>样品磁性 Sample magnetism:</p>
+          <p>样品磁性 Sample magnetism:&nbsp;<span style={{ color: 'red' }}>*</span></p>
           {magnetismOptions.map(opt => (
             <label key={opt.key} style={{ marginRight: 12 }}>
               <input
@@ -1175,7 +1234,7 @@ const conductivityOptions = [
 
         {/* 导电性 */}
         <div className="sample-section">
-          <p>样品导电性 Sample conductivity:</p>
+          <p>样品导电性 Sample conductivity:&nbsp;<span style={{ color: 'red' }}>*</span></p>
           {conductivityOptions.map(opt => (
             <label key={opt.key} style={{ marginRight: 12 }}>
               <input
@@ -1192,7 +1251,7 @@ const conductivityOptions = [
 
         {/* 2. 是否可以破坏 */}
         <div className="sample-section">
-          <p>2. 是否可以破坏 Can it be broken:</p>
+          <p>2. 是否可以破坏 Can it be broken:&nbsp;<span style={{ color: 'red' }}>*</span></p>
           <label style={{ marginRight: 12 }}>
             <input
               type="radio"
@@ -1215,7 +1274,7 @@ const conductivityOptions = [
 
         {/* 3. 是否孤品 */}
         <div className="sample-section">
-          <p>3. 是否孤品 (As shown) :</p>
+          <p>3. 是否孤品 (As shown) :&nbsp;<span style={{ color: 'red' }}>*</span></p>
           <label style={{ marginRight: 12 }}>
             <input
               type="radio"

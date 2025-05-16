@@ -1,19 +1,19 @@
 const mysql = require('mysql2/promise');
 
-// const pool = mysql.createPool({
-//     host: 'localhost',
-//     user: 'jitri',
-//     password: 'jitri@123',
-//     database: 'jitri'
-// });
-
-
 const pool = mysql.createPool({
     host: 'localhost',
-    user: 'root',
-    password: 'jitri',
+    user: 'jitri',
+    password: 'jitri@123',
     database: 'jitri'
 });
+
+
+// const pool = mysql.createPool({
+//     host: 'localhost',
+//     user: 'root',
+//     password: 'jitri',
+//     database: 'jitri'
+// });
 
 
 async function generateOrderNum() {
@@ -292,7 +292,8 @@ async function queryPayment(customerId) {
     try {
         const query = `
             SELECT o.payment_id, o.order_id, o.customer_id,
-                p.payer_name, p.payer_contact_name, p.payer_contact_phone_num
+                p.payer_name, p.payer_contact_name, p.payer_contact_phone_num, p.payer_address, p.payer_phone_num, p.bank_name,
+                p.tax_number, p.bank_account, p.payer_contact_email
             FROM orders o
             JOIN payments p ON o.payment_id = p.payment_id
             WHERE o.customer_id = ? AND o.payment_id IS NOT NULL

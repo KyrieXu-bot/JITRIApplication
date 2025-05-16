@@ -6,8 +6,6 @@ router.post('/', async (req, res) => {
     const connection = await db.pool.getConnection();
     try {
         await connection.beginTransaction();
-        console.log(req.body)
-
         const {
             customerId,
             vatType,
@@ -75,15 +73,14 @@ router.post('/', async (req, res) => {
             const [ti] = await connection.execute(
               `INSERT INTO test_items 
                  (order_num, create_time, original_no, test_item, test_method,
-                  size, quantity, note, status, department_id, deadline, price_id,
+                  quantity, note, status, department_id, deadline, price_id,
                   sample_name, material, sample_type, sample_preparation)
-               VALUES (?, NOW(), ?, ?, ?, ?, ?, ?, '0', ?, ?, ?, ?, ?, ?, ?)`,
+               VALUES (?, NOW(), ?, ?, ?, ?, ?, '0', ?, ?, ?, ?, ?, ?, ?)`,
               [
                 orderNum,
                 item.original_no || null,
                 item.test_item || null,
                 item.test_method || null,
-                item.size || null,
                 item.quantity || null,
                 item.note || null,
                 item.department_id || null,
@@ -105,7 +102,6 @@ router.post('/', async (req, res) => {
             );
           }
       
-
         // Insert report information
         await connection.execute(`
             INSERT INTO reports (
