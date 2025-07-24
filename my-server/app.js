@@ -14,6 +14,7 @@ const salespersonRoutes = require('./routes/salespersons');
 const testRoutes = require('./routes/test');
 const priceRoutes = require('./routes/price');
 const documentRoutes = require('./routes/documents');
+const flowRoutes = require('./routes/flow');
 
 app.use('/customers', customerRoutes);
 app.use('/commission', commissionRoutes);
@@ -22,6 +23,7 @@ app.use('/salespersons', salespersonRoutes);
 app.use('/test-db', testRoutes);
 app.use('/price', priceRoutes);
 app.use('/documents', documentRoutes);
+app.use('/flow', flowRoutes);
 
 
 // 设置静态文件目录

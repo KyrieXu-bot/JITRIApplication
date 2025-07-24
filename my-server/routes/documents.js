@@ -13,11 +13,9 @@ router.post('/', (req, res) => {
     // 1. 从请求体拿到前端传来的所有模板字段
     //    确保前端传的是 templateData 对象
     const templateData = req.body;
-
     // 2. 读取 Word 模板（.docx 实际上是个 ZIP 包）
-    const templatePath = path.resolve(__dirname, '../templates/template.docx');
+    const templatePath = path.resolve(__dirname, '../templates/order_template.docx');
     const content      = fs.readFileSync(templatePath, 'binary');
-
     // 3. 用 PizZip 解压
     const zip = new PizZip(content);
 
@@ -26,7 +24,6 @@ router.post('/', (req, res) => {
       paragraphLoop: true,
       linebreaks: true
     });
-    console.log(templateData)
     doc.render(templateData);
 
 
@@ -40,7 +37,6 @@ router.post('/', (req, res) => {
       'Content-Disposition': `attachment; filename=${fileName}`
     });
     res.send(buf);
-    console.log(fileName)
   } catch (err) {
     console.error('Failed to generate document:', err);
     // 如果占位符错误，doc.setData/ doc.render() 会抛

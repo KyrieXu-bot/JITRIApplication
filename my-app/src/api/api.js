@@ -6,6 +6,10 @@ export const createCommission = (commissionData) => {
   return axios.post(`${baseURL}/commission`, commissionData);
 };
 
+export const getCommission = (orderNum) => {
+  return axios.get(`${baseURL}/commission/${orderNum}`);
+};
+
 export const generateDocument = (templateData) => {
   return axios.post(
     `${baseURL}/documents`,
@@ -13,6 +17,14 @@ export const generateDocument = (templateData) => {
     { responseType: 'blob' }
   );
 };
+
+export const generateSampleFlow  = (templateData) => {
+  return axios.post(
+    `${baseURL}/flow`,
+      templateData,
+      { responseType: 'arraybuffer' }
+  );
+}
 
 export const getPaymentInfoByCustomerName = (customerName) => {
   return axios.get(`${baseURL}/payments`, {

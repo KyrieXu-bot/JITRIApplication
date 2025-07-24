@@ -31,7 +31,7 @@ function PaymentPage() {
     const [showPayerModal, setShowPayerModal] = useState(false);
 
     const areas = ['上海', '省内', '省外', '苏州', '相城'];
-    const organizations = ['高校','集萃体系','企业','研究所']
+    const organizations = ['高校','集萃体系','企业','研究所', '个人']
     const handleAreaChange = (index, value) => {
         setFormData(prevState => ({
             ...prevState,
@@ -105,17 +105,35 @@ function PaymentPage() {
         setShowPayerModal(false);
     };
 
+    function trimFormData(data) {
+        if (typeof data === 'string') {
+            // 去除前后空格，并把多个空格合并成一个
+            return data.trim().replace(/\s+/g, ' ');
+        } else if (Array.isArray(data)) {
+            // 如果是数组，递归处理每个元素
+            return data.map(trimFormData);
+        } else if (data && typeof data === 'object') {
+            // 如果是对象，递归处理每个键
+            return Object.keys(data).reduce((acc, key) => {
+                acc[key] = trimFormData(data[key]);
+                return acc;
+            }, {});
+        }
+        return data; // 其他类型直接返回
+    }
 
     const confirmSubmit = async () => {
+
         setShowModal(false);
         try {
-            const isValidPhone = await validatePayerPhone(formData.payer_contact_phone_num, formData.payer_name);
+            const cleanedFormData = trimFormData(formData);
+            const isValidPhone = await validatePayerPhone(cleanedFormData.payer_contact_phone_num, cleanedFormData.payer_name);
             // 根据返回的结果设置验证状态
             if (isValidPhone.data.exists) {
                 setShowPhoneValidModal(true);
                 setErrorMessage('该付款方和手机号已被注册');
             } else{
-                const response = await createPayment(formData);
+                const response = await createPayment(cleanedFormData);
                 if (response.status === 201 && response.data) {
                     setResponseMessage(response.data.message); // Update the state with the success message
     

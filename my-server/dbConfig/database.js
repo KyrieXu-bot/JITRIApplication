@@ -1,19 +1,19 @@
 const mysql = require('mysql2/promise');
 
-const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'jitri',
-    password: 'jitri@123',
-    database: 'jitri'
-});
-
-
 // const pool = mysql.createPool({
 //     host: 'localhost',
-//     user: 'root',
-//     password: 'jitri',
+//     user: 'jitri',
+//     password: 'jitri@123',
 //     database: 'jitri'
 // });
+
+
+const pool = mysql.createPool({
+    host: 'localhost',
+    user: 'root',
+    password: 'jitri',
+    database: 'jitri'
+});
 
 
 async function generateOrderNum() {
@@ -194,7 +194,7 @@ async function getPayersGroup(searchNameTerm) {
 }
 
 // Function to fetch prices based on search parameters
-async function getPrices(testItemName, testCondition) {
+async function getPrices(testItemName, testCondition, testCode) {
     const connection = await pool.getConnection();
     try {
         let query = 'SELECT * FROM price WHERE 1=1';
@@ -208,6 +208,10 @@ async function getPrices(testItemName, testCondition) {
         if (testCondition) {
             query += ' AND test_condition LIKE ?';
             params.push(`%${testCondition}%`);
+        }
+        if (testCode) {
+            query += ' AND test_code LIKE ?';
+            params.push(`%${testCode}%`);
         }
         await connection.beginTransaction();
         const [results] = await connection.execute(query, params);
